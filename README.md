@@ -12,7 +12,7 @@ This app is very much in beta, and while functionally it can do its intended job
 
 ## Dependencies
 
-minihomelib is a [Flask](https://pypi.org/project/Flask/) app, and was developed on Python 3. Database handling uses YAML. [ISBNlib](https://pypi.org/project/isbnlib/) is recommended for ISBN validation and metadata retrieval, but is not strictly required.
+minihomelib is a [Flask](https://palletsprojects.com/p/flask/) app, and was developed on Python 3. Database handling uses [PyYAML](https://pyyaml.org/). [ISBNlib](https://pypi.org/project/isbnlib/) is recommended for ISBN validation and metadata retrieval, but is not strictly required.
 
 ```shell
 pip3 install Flask pyyaml
@@ -29,6 +29,9 @@ Currently minihomelib uses Flask's built-in development server. Do not use it in
 $ python3 minihomelib.py
 ```
 2. Navigate to 127.0.0.1:5000 using a Web browser (be sure to set your firewall properly)
+
+## Screenshots
+![Screenshot with example library](/screenshots/20221109.png)
 
 ## License
 
