@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Library Management System</title>
+        <style>
+            td { border: 1px solid; border-color: blue; ; padding: 5px;}
+        </style>
+        <script type="text/javascript">
+            function show_book_addition() {
+                document.getElementById("book_addition").style.visibility="visible";
+                document.getElementById("isbn").style.visibility="hidden";
+                document.getElementById("show_add_book").style.visibility="hidden";
+                document.getElementById("transact").style.visibility="hidden";
+                document.getElementById("isbn_new").focus();
+            }
+            function cancel_book_addition() {
+                document.getElementById("book_addition").style.visibility="hidden";
+                document.getElementById("isbn").style.visibility="visible";
+                document.getElementById("show_add_book").style.visibility="visible";
+                document.getElementById("transact").style.visibility="visible";
+                document.getElementById("isbn").focus();
+            }
+            /*function transact() {
+                let data = new FormData();
+                p = document.getElementById("indicator");
+                data.append("isbn", document.getElementById("isbn").value);
+                fetch( "/", {
+                    "method": "POST",
+                    "body": data,
+                }).then(response => response.json()).then(text => p.innerText=text);
+            }
+			*/
+        </script>
+    </head>
+    <body>
+        <h1 style="text-align: center;">Library Management System</h1>
+        <h6 style="text-align: right;">{{ pagedate }}</h6>
+        <form method="POST" id="mainform">
+            <input type="text" placeholder="ISBN" id="isbn" name="isbn" autofocus>
+            <input type="button" value="Add new book" id="show_add_book" name="show_add_book" onClick="show_book_addition();">
+            <!-- <input type="button" value="Check-out/Check-in" name="transact" onClick="transact();"> -->
+            <input type="submit" value="Check-out/Check-in" id="transact" name="transact">
+        </form>
+        <form method="POST" action="/add" id="book_addition" style="visibility: hidden;">
+            <label>ISBN: </label><input type="text" placeholder="ISBN" name="isbn_new" id="isbn_new" required autofocus><br/>
+            <label>Book name: </label><input type="text" placeholder="Name of book" name="bookname" id="bookname"><br />
+            <label>Author name: </label><input type="text" placeholder="Name of author" name="author" id="author"><br />
+            <label>Purchase date: </label><input type="date" name="purchase_date" id="purchase_date"><br />
+            <label>Location of purchase: </label><input type="text" placeholder="Where book was purchased" name="purchase_location" id="purchase_location"><br />
+            <label>Genre: </label><input type="text" placeholder="Genre" name="genre" id="genre"><br />
+            <label style="color: red"">Book location: </label><input type="text" placeholder="Shelf where book belongs" name="location" id="location" required><br />
+            <input type="hidden" name="checkout_status" id="checkout_status" value="checked_in">
+            <input type="hidden" name="transaction_date" id="transaction_date" value="[]">
+            <input type="submit" value="Add" name="add_book" id="add_book">
+            <input type="reset"  value="Reset" name="reset_add_book" id="reset_add_book">
+            <input type="button" value="Cancel" name="cancel_add_book" id="cancel_add_book" onClick="cancel_book_addition();">
+        </form>
+        <hr>
+        <p id="indicator" style="background-color: lavender;">{{ status }}</p>
+        <hr>
+        <h2 style="text-align: center;">Current library</h2>
+        <table>
+            <!-- Generate table of books -->
+			<thead>
+            <tr>
+                <th>ISBN</th>
+                <th>Name</th>
+                <th>Author</th>
+                <th>Purchase date</th>
+                <th>Purchase location</th>
+                <th>Genre</th>
+                <th>Book location</th>
+                <th>Status</th>
+                <th>Last checkout</th>
+                <th>Last checkin</th>
+            </tr>
+			<thead>
+			<tbody>
+            {% for ISBN in lib -%}
+            <tr class="book_row">
+                <td>{{ ISBN }}</td>
+                <td>{{ lib[ISBN]['BOOKNAME'] }}</td>
+                <td>{{ lib[ISBN]['AUTHOR'] }}</td>
+                <td>{{ lib[ISBN]['PURCHASE_DATE'] }}</td>
+                <td>{{ lib[ISBN]['PURCHASE_LOCATION'] }}</td>
+                <td>{{ lib[ISBN]['GENRE'] }}</td>
+                <td style="color:blue">{{ lib[ISBN]['LOCATION'] }}</td>
+                    {% if lib[ISBN]['CHECKOUT_STATUS'] == 'checked_out' %}
+                        <td style="color:red; font-weight: bold;"> Checked out </td>
+                    {% elif lib[ISBN]['CHECKOUT_STATUS'] == 'checked_in' %}
+                        <td style="color:green; font-weight: bold;"> Checked in </td>
+					{% else %}
+						<td> {{ lib[ISBN]['CHECKOUT_STATUS'] }} </td>
+                    {% endif %}
+                <td>{{ lib[ISBN]['TRANSACTION_DATES'][-1][0] }}</td>
+                <td>{{ lib[ISBN]['TRANSACTION_DATES'][-1][1] }}</td>
+            </tr>
+            {% endfor -%}
+			</tbody>
+        </table>
+		<script type="text/javascript">
+			var currentdate = new Date();
+			var bookrows = document.getElementsByClassName("book_row");
+			for (i=0; i < bookrows.length; i++) {
+				if ((bookrows[i].cells[7].innerText == "Checked out") && ((currentdate.getTime() - (Date.parse(bookrows[i].cells[8].innerText))) / (1000*60*60*24) > {{ past_due }} )) {
+						alert("Book '" + bookrows[i].cells[1].innerText + "' checked out for over {{ past_due }} days");
+				}
+			}
+		</script>
+    </body>
+</html>

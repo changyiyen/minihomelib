@@ -1,0 +1,4 @@
+# Automatically fetch ISBN metadata using isbnlib
+isbnlib_fetch_meta: True
+# Past due alert duration (in days)
+past_due: 30

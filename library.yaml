@@ -1,0 +1,13 @@
+# Example library entry
+#'123456789':
+#  AUTHOR: R. J. Gumby
+#  BOOKNAME: The BIG
+#  CHECKOUT_STATUS: checked_in
+#  GENRE: Science Fiction
+#  LOCATION: shelf 3
+#  PURCHASE_DATE: '2022-01-02'
+#  PURCHASE_LOCATION: Booker Club
+#  TRANSACTION_DATES:
+#  - - '2022-11-02'
+#    - '2022-11-02'
+
