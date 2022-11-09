@@ -16,10 +16,20 @@ minihomelib is a [Flask](https://pypi.org/project/Flask/) app, and was developed
 
 ```shell
 pip3 install Flask pyyaml
-# Optional:
+# Optional
 pip3 install isbnlib
 ```
-  
+
+## Usage
+
+Currently minihomelib uses Flask's built-in development server. Do not use it in production. See Flask's documentation for advice on formal deployment.
+
+1. Start the server
+```shell
+$ python3 minihomelib.py
+```
+2. Navigate to 127.0.0.1:5000 using a Web browser (be sure to set your firewall properly)
+
 ## License
 
 minihomelib is placed under the coffeeware license, itself a lightly modified beerware license.
