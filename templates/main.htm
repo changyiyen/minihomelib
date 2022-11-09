@@ -30,7 +30,7 @@
                     "body": data,
                 }).then(response => response.json()).then(text => p.innerText=text);
             }
-			*/
+            */
         </script>
     </head>
     <body>
@@ -62,7 +62,7 @@
         <h2 style="text-align: center;">Current library</h2>
         <table>
             <!-- Generate table of books -->
-			<thead>
+            <thead>
             <tr>
                 <th>ISBN</th>
                 <th>Name</th>
@@ -75,8 +75,9 @@
                 <th>Last checkout</th>
                 <th>Last checkin</th>
             </tr>
-			<thead>
-			<tbody>
+            <thead>
+            <tbody>
+            {% if lib != None -%}
             {% for ISBN in lib -%}
             <tr class="book_row">
                 <td>{{ ISBN }}</td>
@@ -90,23 +91,24 @@
                         <td style="color:red; font-weight: bold;"> Checked out </td>
                     {% elif lib[ISBN]['CHECKOUT_STATUS'] == 'checked_in' %}
                         <td style="color:green; font-weight: bold;"> Checked in </td>
-					{% else %}
-						<td> {{ lib[ISBN]['CHECKOUT_STATUS'] }} </td>
+                    {% else %}
+                        <td> {{ lib[ISBN]['CHECKOUT_STATUS'] }} </td>
                     {% endif %}
                 <td>{{ lib[ISBN]['TRANSACTION_DATES'][-1][0] }}</td>
                 <td>{{ lib[ISBN]['TRANSACTION_DATES'][-1][1] }}</td>
             </tr>
             {% endfor -%}
-			</tbody>
+            {% endif -%}
+            </tbody>
         </table>
-		<script type="text/javascript">
-			var currentdate = new Date();
-			var bookrows = document.getElementsByClassName("book_row");
-			for (i=0; i < bookrows.length; i++) {
-				if ((bookrows[i].cells[7].innerText == "Checked out") && ((currentdate.getTime() - (Date.parse(bookrows[i].cells[8].innerText))) / (1000*60*60*24) > {{ past_due }} )) {
-						alert("Book '" + bookrows[i].cells[1].innerText + "' checked out for over {{ past_due }} days");
-				}
-			}
-		</script>
+        <script type="text/javascript">
+            var currentdate = new Date();
+            var bookrows = document.getElementsByClassName("book_row");
+            for (i=0; i < bookrows.length; i++) {
+                if ((bookrows[i].cells[7].innerText == "Checked out") && ((currentdate.getTime() - (Date.parse(bookrows[i].cells[8].innerText))) / (1000*60*60*24) > {{ past_due }} )) {
+                        alert("Book '" + bookrows[i].cells[1].innerText + "' checked out for over {{ past_due }} days");
+                }
+            }
+        </script>
     </body>
 </html>
