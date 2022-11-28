@@ -1,13 +1,24 @@
-# Example library entry
-#'123456789':
-#  AUTHOR: R. J. Gumby
-#  BOOKNAME: The BIG
-#  CHECKOUT_STATUS: checked_in
-#  GENRE: Science Fiction
-#  LOCATION: shelf 3
-#  PURCHASE_DATE: '2022-01-02'
-#  PURCHASE_LOCATION: Booker Club
-#  TRANSACTION_DATES:
-#  - - '2022-11-02'
-#    - '2022-11-02'
+'9780544456860':
+  AUTHOR: Randall Munroe
+  BOOKNAME: What If? - Serious Scientific Answers To Absurd Hypothetical Questions
+  CHECKOUT_STATUS: checked_in
+  GENRE: Science
+  LOCATION: Study, shelf 1
+  PURCHASE_DATE: ''
+  PURCHASE_LOCATION: ''
+  TRANSACTION_DATES:
+  - - '2022-11-15'
+  - - '2022-11-15'
+    - '2022-11-15'
+'9780593542903':
+  AUTHOR: Randall Munroe
+  BOOKNAME: What If? 2 - Additional Serious Scientific Answers To Absurd Hypothetical
+    Questions
+  CHECKOUT_STATUS: checked_in
+  GENRE: Science
+  LOCATION: Study, shelf 1
+  PURCHASE_DATE: ''
+  PURCHASE_LOCATION: ''
+  TRANSACTION_DATES:
+  - - '2022-11-15'
 

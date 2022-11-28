@@ -1,4 +1,21 @@
-# Automatically fetch ISBN metadata using isbnlib
+# minihomelib configuration file
+
+# ISBN processing
+## Automatically fetch ISBN metadata using isbnlib
 isbnlib_fetch_meta: True
-# Past due alert duration (in days)
+
+# Shelf management
+## Default shelves ()
+shelves:
+  Study:
+    - shelf 1
+    - shelf 2
+    - shelf 3
+  Living room:
+    - shelf 1
+  Master bedroom:
+    - shelf 1
+
+# Alerts
+## Past due alert duration (in days)
 past_due: 30
