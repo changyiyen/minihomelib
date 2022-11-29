@@ -1,3 +1,15 @@
+'9780525537090':
+  AUTHOR: Randall Munroe
+  BOOKNAME: How To - Absurd Scientific Advice For Common Real-World Problems
+  CHECKOUT_STATUS: checked_in
+  GENRE: Science
+  LOCATION: Study, shelf 1
+  PURCHASE_DATE: ''
+  PURCHASE_LOCATION: ''
+  TRANSACTION_DATES:
+  - - '2022-11-29T01:30:47'
+  - - '2022-11-29T01:31:04'
+    - '2022-11-29T01:31:20'
 '9780544456860':
   AUTHOR: Randall Munroe
   BOOKNAME: What If? - Serious Scientific Answers To Absurd Hypothetical Questions
@@ -7,9 +19,9 @@
   PURCHASE_DATE: ''
   PURCHASE_LOCATION: ''
   TRANSACTION_DATES:
-  - - '2022-11-15'
-  - - '2022-11-15'
-    - '2022-11-15'
+  - - '2022-11-15T11:00:00'
+  - - '2022-11-15T05:00:00'
+    - '2022-11-15T09:00:00'
 '9780593542903':
   AUTHOR: Randall Munroe
   BOOKNAME: What If? 2 - Additional Serious Scientific Answers To Absurd Hypothetical
@@ -20,5 +32,4 @@
   PURCHASE_DATE: ''
   PURCHASE_LOCATION: ''
   TRANSACTION_DATES:
-  - - '2022-11-15'
-
+  - - '2022-11-15T03:00:00'

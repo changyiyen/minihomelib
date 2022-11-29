@@ -7,14 +7,24 @@
             td { border: 1px solid; border-color: blue; padding: 5px;}
         </style>
         <script type="text/javascript">
-
         </script>
     </head>
     <body>
-        <h1 style="text-align: center;">Library Management System</h1>
+        <h1 style="text-align: center;">Library Management System - Stats</h1>
         <p style="text-align: right;">Page generated at {{ pagedate }}</p>
         <hr>
         <p id="indicator" style="background-color: lavender;">{{ status }}</p>
         <hr>
+		<button onclick="window.location.href='/'">Back</button>
+		<table>
+		    <tr>
+		        <td>Most checkout/checkins</td>
+				<td>{{transaction_counts[1]}} ({{transaction_counts[0]}} transactions)</td>
+		    </tr>
+			<tr>
+			    <td>Longest transaction</td>
+				<td>{{checkout_times[1]}} ({{checkout_times[0]}})</td>
+			</tr>
+		</table>
     </body>
 </html>

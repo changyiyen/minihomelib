@@ -32,40 +32,35 @@ status = ""
 def main():
     global status
     if flask.request.method == 'GET':
-        return flask.render_template('main.htm', lib=lib, pagedate=datetime.datetime.isoformat(datetime.datetime.today()), status=status, shelves=conf["shelves"], past_due=int(conf['past_due']))
+        return flask.render_template('main.htm', lib=lib, pagedate=datetime.datetime.today().isoformat('T', 'seconds'), status=status, shelves=conf["shelves"], past_due=int(conf['past_due']))
     if flask.request.method == 'POST':
         # Do nothing on empty ISBN
         if flask.request.form.get('isbn') == '' or lib == None:
-            #return flask.redirect('/')
-            return flask.render_template('main.htm', lib=lib, pagedate=datetime.datetime.isoformat(datetime.datetime.today()), status=status, shelves=conf["shelves"])
+            return flask.redirect('/')
         elif flask.request.form.get('isbn') in lib:
             if ISBNlib_imported:
                 if isbnlib.notisbn(flask.request.form.get('isbn')):
                     status = "Error: not valid ISBN"
-                    #return flask.redirect('/')
-                    return flask.render_template('main.htm', lib=lib, pagedate=datetime.datetime.isoformat(datetime.datetime.today()), status=status)
+                    return flask.redirect('/')
             # Checkout (start new transaction)
             if lib[flask.request.form.get('isbn')]['CHECKOUT_STATUS'] == 'checked_in':
                 lib[flask.request.form.get('isbn')]['CHECKOUT_STATUS'] = 'checked_out'
-                lib[flask.request.form.get('isbn')]['TRANSACTION_DATES'].append([datetime.datetime.today().strftime('%Y-%m-%d')])
+                lib[flask.request.form.get('isbn')]['TRANSACTION_DATES'].append([datetime.datetime.today().isoformat('T', 'seconds')])
                 with open('library.yaml', 'w') as library:
                     yaml.safe_dump(lib, library)
                 status = "Book '{}' checked out!".format(lib[flask.request.form.get('isbn')]['BOOKNAME'])
-                #return flask.redirect('/')
-                return flask.render_template('main.htm', lib=lib, pagedate=datetime.datetime.isoformat(datetime.datetime.today()), status=status, shelves=conf["shelves"])
+                return flask.redirect('/')
             # Checkin (close latest transaction)
             if lib[flask.request.form.get('isbn')]['CHECKOUT_STATUS'] == 'checked_out':
                 lib[flask.request.form.get('isbn')]['CHECKOUT_STATUS'] = 'checked_in'
-                lib[flask.request.form.get('isbn')]['TRANSACTION_DATES'][-1].append(datetime.datetime.today().strftime('%Y-%m-%d'))
+                lib[flask.request.form.get('isbn')]['TRANSACTION_DATES'][-1].append(datetime.datetime.today().isoformat('T', 'seconds'))
                 with open('library.yaml', 'w') as library:
                     yaml.safe_dump(lib, library)
                 status = "Book '{}' checked in!".format(lib[flask.request.form.get('isbn')]['BOOKNAME'])
-                #return flask.redirect('/')
-                return flask.render_template('main.htm', lib=lib, pagedate=datetime.datetime.isoformat(datetime.datetime.today()), status=status, shelves=conf["shelves"])
+                return flask.redirect('/')
         else:
             status = "Error: ISBN not in library"
-            #return flask.redirect('/')
-            return flask.render_template('main.htm', lib=lib, pagedate=datetime.datetime.isoformat(datetime.datetime.today()), status=status, shelves=conf["shelves"])
+            return flask.redirect('/')
 
 @app.route('/add', methods=['POST'])
 def add():
@@ -82,7 +77,7 @@ def add():
     genre = flask.request.form.get('genre')
     location = flask.request.form.get('location')
     checkout_status = flask.request.form.get('checkout_status')
-    transaction_dates =[[datetime.datetime.today().strftime('%Y-%m-%d')]]
+    transaction_dates =[[datetime.datetime.today().isoformat('T', 'seconds')]]
 
     # Initialize library entry
     if lib == None:
@@ -128,7 +123,29 @@ def add():
 def stats():
     global status, lib
     # Load library and calculate stats
-    # Pass stats to template
+    
+    ## Highest number of transactions
+    transaction_counts = list([0,list()])
+    for isbn in lib:
+        transactions = len(lib[isbn]['TRANSACTION_DATES'])
+        if transactions > transaction_counts[0]:
+            transaction_counts[0] = transactions
+            transaction_counts[1] = [lib[isbn]['BOOKNAME']]
+        elif transactions == transaction_counts[0]:
+            transaction_counts[1].append(lib[isbn]['BOOKNAME'])
+    
+    ## Longest known checkout time
+    checkout_times = list([datetime.timedelta(), ''])
+    for isbn in lib:
+        for transaction in lib[isbn]['TRANSACTION_DATES']:
+            if len(transaction) < 2:
+                continue
+            delta = datetime.datetime.strptime(transaction[1], '%Y-%m-%dT%H:%M:%S') - datetime.datetime.strptime(transaction[0], '%Y-%m-%dT%H:%M:%S')
+            if delta > checkout_times[0]:
+                checkout_times[0] = delta
+                # Unlikely that two real transactions would be exactly the same length, down to the second
+                checkout_times[1] = lib[isbn]['BOOKNAME']
+
     # Generate graphs
     ## barplot: book name / total transaction count
     ## barplot: book name / checkout intervals
@@ -136,7 +153,7 @@ def stats():
     ## barplot: genre / transaction count for last month
     ## histogram: time (month) / number of books acquired for each month
     ## histogram: time / total cumulative book count
-    pass
+    return flask.render_template('stats.htm', pagedate=datetime.datetime.today().isoformat('T', 'seconds'), status=status, transaction_counts=transaction_counts, checkout_times=checkout_times)
 
 if __name__ == '__main__':
     app.run(debug=True)
