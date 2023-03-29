@@ -1,11 +1,13 @@
 # minihomelib configuration file
 
-# ISBN processing
-## Automatically fetch ISBN metadata using isbnlib
+# ISBN processing with isbnlib
+## Validate ISBN
+#isbnlib_validate: True
+## Automatically fetch ISBN metadata
 isbnlib_fetch_meta: True
 
 # Shelf management
-## Default shelves ()
+## Default shelves
 shelves:
   Study:
     - shelf 1
@@ -13,7 +15,7 @@ shelves:
     - shelf 3
   Living room:
     - shelf 1
-  Master bedroom:
+  Reading corner:
     - shelf 1
 
 # Alerts

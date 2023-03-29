@@ -6,8 +6,8 @@
         <style>
             td { border: 1px solid; border-color: blue; padding: 5px;}
         </style>
-        <script type="text/javascript">
-        </script>
+		<script src= {{ url_for('static', filename='plotly-2.18.2.min.js') }}>
+		</script>
     </head>
     <body>
         <h1 style="text-align: center;">Library Management System - Stats</h1>
@@ -22,9 +22,22 @@
 				<td>{{transaction_counts[1]}} ({{transaction_counts[0]}} transactions)</td>
 		    </tr>
 			<tr>
-			    <td>Longest transaction</td>
-				<td>{{checkout_times[1]}} ({{checkout_times[0]}})</td>
+			    <td>Longest checkout</td>
+				<td>{{longest_checkout[1]}} ({{longest_checkout[0]}})</td>
 			</tr>
 		</table>
+		<!-- Barchart of bookname/transaction counts -->
+		<div id="transaction_counts_bar"></div>
+		<script type="text/javascript">
+			var graphs = {{transaction_counts_plotJSON | safe}};
+			Plotly.newPlot("transaction_counts_bar", graphs[0]);
+		</script>
+		
+		<div id="checkout_intervals_bar" style="width:600px;height:250px;"></div>
+		<div id="genre_transactions_bar" style="width:600px;height:250px;"></div>
+		<div id="last_month_genres_bar" style="width:600px;height:250px;"></div>
+		<div id="acquired_histo" style="width:600px;height:250px;"></div>
+		<div id="acquired_genre_stackedhisto" style="width:600px;height:250px;"></div>
+		<div id="cumulative_histo" style="width:600px;height:250px;"></div>
     </body>
 </html>

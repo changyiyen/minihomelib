@@ -11,17 +11,23 @@ try:
     ISBNlib_imported = True
 except ImportError:
     ISBNlib_imported = False
+# Suggested: plotly (pip3 install plotly)
+try:
+    import plotly
+    plotly_imported = True
+except ImportError:
+    plotly_imported = False
 
 # Built-ins
 import datetime
+import json
 #import sqlite3
 import sys
 
-# Change to .ini file?
 with open('config.yaml', 'r') as configfile:
     conf = yaml.safe_load(configfile)
 
-# Change to SQLite?
+# Change to SQLite or JSON?
 with open('library.yaml', 'r') as library:
     lib = yaml.safe_load(library)
 
@@ -32,7 +38,12 @@ status = ""
 def main():
     global status
     if flask.request.method == 'GET':
-        return flask.render_template('main.htm', lib=lib, pagedate=datetime.datetime.today().isoformat('T', 'seconds'), status=status, shelves=conf["shelves"], past_due=int(conf['past_due']))
+        return flask.render_template('main.htm',
+            lib=lib,
+            pagedate=datetime.datetime.today().isoformat('T', 'seconds'),
+            status=status,
+            shelves=conf["shelves"],
+            past_due=int(conf['past_due']))
     if flask.request.method == 'POST':
         # Do nothing on empty ISBN
         if flask.request.form.get('isbn') == '' or lib == None:
@@ -123,8 +134,7 @@ def add():
 def stats():
     global status, lib
     # Load library and calculate stats
-    
-    ## Highest number of transactions
+    ## Get books with highest number of transactions
     transaction_counts = list([0,list()])
     for isbn in lib:
         transactions = len(lib[isbn]['TRANSACTION_DATES'])
@@ -133,18 +143,30 @@ def stats():
             transaction_counts[1] = [lib[isbn]['BOOKNAME']]
         elif transactions == transaction_counts[0]:
             transaction_counts[1].append(lib[isbn]['BOOKNAME'])
-    
-    ## Longest known checkout time
-    checkout_times = list([datetime.timedelta(), ''])
+    ## Get book with longest known checkout time
+    longest_checkout = list([datetime.timedelta(), ''])
     for isbn in lib:
         for transaction in lib[isbn]['TRANSACTION_DATES']:
             if len(transaction) < 2:
                 continue
             delta = datetime.datetime.strptime(transaction[1], '%Y-%m-%dT%H:%M:%S') - datetime.datetime.strptime(transaction[0], '%Y-%m-%dT%H:%M:%S')
-            if delta > checkout_times[0]:
-                checkout_times[0] = delta
+            if delta > longest_checkout[0]:
+                longest_checkout[0] = delta
                 # Unlikely that two real transactions would be exactly the same length, down to the second
-                checkout_times[1] = lib[isbn]['BOOKNAME']
+                longest_checkout[1] = lib[isbn]['BOOKNAME']
+
+    ## Build data for bar plot of bookname/transaction counts
+    transaction_counts_plotdata = [
+        {
+            'data': [
+              {
+                'x': list([lib[isbn]['BOOKNAME'] for isbn in lib]),
+                'y': list([len(lib[isbn]['TRANSACTION_DATES']) for isbn in lib]),
+                'type': 'bar'}
+            ]
+        }
+    ]
+    transaction_counts_plotJSON = json.dumps(transaction_counts_plotdata, cls=plotly.utils.PlotlyJSONEncoder)
 
     # Generate graphs
     ## barplot: book name / total transaction count
@@ -153,7 +175,12 @@ def stats():
     ## barplot: genre / transaction count for last month
     ## histogram: time (month) / number of books acquired for each month
     ## histogram: time / total cumulative book count
-    return flask.render_template('stats.htm', pagedate=datetime.datetime.today().isoformat('T', 'seconds'), status=status, transaction_counts=transaction_counts, checkout_times=checkout_times)
+    return flask.render_template('stats.htm',
+        pagedate=datetime.datetime.today().isoformat('T', 'seconds'),
+        status=status,
+        transaction_counts=transaction_counts,
+        longest_checkout=longest_checkout,
+        transaction_counts_plotJSON=transaction_counts_plotJSON)
 
 if __name__ == '__main__':
     app.run(debug=True)
