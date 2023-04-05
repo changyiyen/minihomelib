@@ -1,0 +1,31 @@
+# minihomelib configuration file
+
+# Set library file
+#library_db: "library.sqlite"
+library_db = "library_example.sqlite"
+
+# ISBN processing with isbnlib
+## Validate ISBN
+#isbnlib_validate = true
+## Automatically fetch ISBN metadata
+isbnlib_fetch_meta = true
+
+# Alerts
+## Past due alert duration (in days)
+past_due = 30
+
+# Shelf management
+## Default shelves
+[shelves]
+  "Study" = [
+    "shelf 1",
+    "shelf 2",
+    "shelf 3",
+  ]
+  "Living room" = [
+    "shelf 1",
+  ]
+  "Reading corner" = [
+    "shelf 1",
+  ]
+

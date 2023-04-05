@@ -38,6 +38,7 @@
 					t.push(book_table.children[i]);
 				}
 				t = t.sort(function(a, b){return a.cells[n].innerText > b.cells[n].innerText;});
+				// TODO: Write contents of t to original table
 			}
         </script>
     </head>
@@ -66,16 +67,16 @@
 				<td><input type="text" placeholder="Name of author" name="author" id="author"></td>
 			</tr>
 			<tr>
-                <td><label>Purchase date: </label></td>
-				<td><input type="date" name="purchase_date" id="purchase_date"></td>
+                <td><label>Acquisition date: </label></td>
+				<td><input type="date" name="acquisition_date" id="acquisition_date"></td>
 			</tr>
 			<tr>
-                <td><label>Location of purchase: </label></td>
-				<td><input type="text" placeholder="Where book was purchased" name="purchase_location" id="purchase_location"></td>
+                <td><label>Location of acquisition: </label></td>
+				<td><input type="text" placeholder="Where book was acquired" name="acquisition_location" id="acquisition_location"></td>
 			</tr>
 			<tr>
                 <td><label>Genre: </label></td>
-				<td><input type="text" placeholder="Genre" name="genre" id="genre" required></td>
+				<td><input type="text" placeholder="Genre" name="genre" id="genre"></td>
 			</tr>
 			<tr>
 		        <td><label style="color: red">Book location: </label></td>
@@ -92,7 +93,11 @@
 		    {% else -%}
 			    <td><input type="text" placeholder="Shelf where book belongs" name="location" id="location" required></td>
 			{% endif -%}
-            <input type="hidden" name="checkout_status" id="checkout_status" value="checked_in">
+			<tr>
+                <td><label>User: </label></td>
+				<td><input type="text" value="username" name="username" id="username" required></td>
+			</tr>
+            <input type="hidden" name="checkout_status" id="checkout_status" value="checked in">
             <input type="hidden" name="transaction_date" id="transaction_date" value="[]">
 			<tr>
 				<button type="submit" name="add_book" id="add_book" title="Add book to database">Add</button>
@@ -111,13 +116,15 @@
                 <th onClick="colsort(0);">ISBN</th>
                 <th onClick="colsort(1);">Name</th>
                 <th onClick="colsort(2);">Author</th>
-                <th onClick="colsort(3);">Purchase date</th>
-                <th onClick="colsort(4);">Purchase location</th>
-                <th onClick="colsort(5);">Genre</th>
-                <th onClick="colsort(6);">Book location</th>
-                <th onClick="colsort(7);">Status</th>
-                <th onClick="colsort(8);">Last checkout</th>
-                <th onClick="colsort(9);">Last checkin</th>
+				<th onClick="colsort(3);">Language</th>
+				<th onClick="colsort(4);">Publisher</th>
+				<th onClick="colsort(5);">Publication year</th>
+				<th onClick="colsort(6);">Genres</th>
+                <th onClick="colsort(7);">Acquisition date</th>
+                <th onClick="colsort(8);">Acquisition location</th>
+                <th onClick="colsort(9);">Book location</th>
+                <th onClick="colsort(10);">Status</th>
+                <th onClick="colsort(11);">Last transaction</th>
             </tr>
 			<thead>
 			<tbody id="book_table">
@@ -126,20 +133,22 @@
             <tr class="book_row">
                 <td>{{ ISBN }}</td>
                 <td>{{ lib[ISBN]['BOOKNAME'] }}</td>
-                <td>{{ lib[ISBN]['AUTHOR'] }}</td>
-                <td>{{ lib[ISBN]['PURCHASE_DATE'] }}</td>
-                <td>{{ lib[ISBN]['PURCHASE_LOCATION'] }}</td>
-                <td>{{ lib[ISBN]['GENRE'] }}</td>
-                <td style="color:blue">{{ lib[ISBN]['LOCATION'] }}</td>
-                    {% if lib[ISBN]['CHECKOUT_STATUS'] == 'checked_out' %}
-                        <td style="color:red; font-weight: bold;"> Checked out </td>
-                    {% elif lib[ISBN]['CHECKOUT_STATUS'] == 'checked_in' %}
-                        <td style="color:green; font-weight: bold;"> Checked in </td>
-					{% else %}
-						<td> {{ lib[ISBN]['CHECKOUT_STATUS'] }} </td>
-                    {% endif %}
-                <td>{{ lib[ISBN]['TRANSACTION_DATES'][-1][0] }}</td>
-                <td>{{ lib[ISBN]['TRANSACTION_DATES'][-1][1] }}</td>
+                <td>{{ lib[ISBN]['AUTHORS'] }}</td>
+				<td>{{ lib[ISBN]['LANGUAGE'] }}</td>
+				<td>{{ lib[ISBN]['PUBLISHER'] }}</td>
+				<td>{{ lib[ISBN]['PUBLICATION_YEAR'] }}</td>
+				<td>{{ lib[ISBN]['GENRES'] }}</td>
+                <td>{{ lib[ISBN]['ACQUISITION_DATE'] }}</td>
+                <td>{{ lib[ISBN]['ACQUISITION_LOCATION'] }}</td>
+                <td style="color:blue">{{ lib[ISBN]['HOME_SHELF'] }}</td>
+                {% if lib[ISBN]['BOOK_STATUS'] == 'checked out' %}
+                    <td style="color:red; font-weight: bold;"> Checked out </td>
+                {% elif lib[ISBN]['BOOK_STATUS'] == 'checked in' %}
+                    <td style="color:green; font-weight: bold;"> Checked in </td>
+			    {% else %}
+					<td> {{ lib[ISBN]['BOOK_STATUS'] }} </td>
+                {% endif %}
+                <td>{{ lib[ISBN]['LAST_TRANSACTION'] }}</td>
             </tr>
             {% endfor -%}
 			{% endif %}

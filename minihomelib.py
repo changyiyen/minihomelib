@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Prerequisites: flask, pyyaml (pip3 install Flask pyyaml)
+# Prerequisites: flask (pip3 install Flask)
 import flask
-import yaml
 
 # Suggested: isbnlib (pip3 install isbnlib)
 try:
@@ -11,32 +10,57 @@ try:
     ISBNlib_imported = True
 except ImportError:
     ISBNlib_imported = False
-# Suggested: plotly (pip3 install plotly)
-try:
-    import plotly
-    plotly_imported = True
-except ImportError:
-    plotly_imported = False
 
 # Built-ins
 import datetime
 import json
-#import sqlite3
+import sqlite3
 import sys
+import tomllib
 
-with open('config.yaml', 'r') as configfile:
-    conf = yaml.safe_load(configfile)
+with open('config.toml', 'rb') as configfile:
+    conf = tomllib.load(configfile)
 
-# Change to SQLite or JSON?
-with open('library.yaml', 'r') as library:
-    lib = yaml.safe_load(library)
+# Load initial data
+lib = dict()
+con = sqlite3.connect(conf["library_db"])
+cur = con.cursor()
+item_data = cur.execute("SELECT ISBN, book_name, authors, language, publisher, publication_year, genres, acquisition_date, acquisition_location, home_shelf FROM item_info;").fetchall()
+transaction_data = cur.execute("SELECT ISBN, transaction_type, transaction_date, user_name FROM transactions;").fetchall()
+book_status = cur.execute("SELECT ISBN, status, last_transaction FROM book_status").fetchall()
+con.close()
+for row in item_data:
+    lib[row[0]] = {
+        "BOOKNAME": row[1],
+        "AUTHORS": row[2],
+        "LANGUAGE": row[3],
+        "PUBLISHER": row[4],
+        "PUBLICATION_YEAR": row[5],
+        "GENRES": row[6],
+        "ACQUISITION_DATE": row[7],
+        "ACQUISITION_LOCATION": row[8],
+        "HOME_SHELF": row[9],
+    }
+for row in transaction_data:
+    lib[row[0]]["TRANSACTIONS"] = list()
+for row in transaction_data:
+    lib[row[0]]["TRANSACTIONS"].append(
+        {
+        "TRANSACTION_TYPE": row[1],
+        "TRANSACTION_DATE": row[2],
+        "USERNAME": row[3]
+        }
+    )
+for row in book_status:
+    lib[row[0]]["BOOK_STATUS"] = row[1]
+    lib[row[0]]["LAST_TRANSACTION"] = row[2]
 
 app = flask.Flask(__name__)
 status = ""
 
 @app.route('/', methods=['GET','POST'])
 def main():
-    global status
+    global status, lib
     if flask.request.method == 'GET':
         return flask.render_template('main.htm',
             lib=lib,
@@ -45,28 +69,65 @@ def main():
             shelves=conf["shelves"],
             past_due=int(conf['past_due']))
     if flask.request.method == 'POST':
-        # Do nothing on empty ISBN
-        if flask.request.form.get('isbn') == '' or lib == None:
+        # Do nothing on empty ISBN or empty library
+        if flask.request.form.get('isbn') == '' or len(lib) == 0:
             return flask.redirect('/')
+        # Process checkout/checkin if ISBN exists in library
         elif flask.request.form.get('isbn') in lib:
             if ISBNlib_imported:
                 if isbnlib.notisbn(flask.request.form.get('isbn')):
                     status = "Error: not valid ISBN"
                     return flask.redirect('/')
-            # Checkout (start new transaction)
-            if lib[flask.request.form.get('isbn')]['CHECKOUT_STATUS'] == 'checked_in':
-                lib[flask.request.form.get('isbn')]['CHECKOUT_STATUS'] = 'checked_out'
-                lib[flask.request.form.get('isbn')]['TRANSACTION_DATES'].append([datetime.datetime.today().isoformat('T', 'seconds')])
-                with open('library.yaml', 'w') as library:
-                    yaml.safe_dump(lib, library)
+            # Checkout
+            if lib[flask.request.form.get('isbn')]['BOOK_STATUS'] == 'checked in':
+                # First change internal representation (lib)
+                lib[flask.request.form.get('isbn')]['BOOK_STATUS'] = 'checked out'
+                # Then write to database
+                con = sqlite3.connect(conf["library_db"])
+                cur = con.cursor()
+                t = datetime.datetime.today().isoformat('T', 'seconds')
+                cur.execute("INSERT INTO transactions VALUES(?,?,?,?)",
+                    (
+                    flask.request.form.get('isbn'),
+                    "check out",
+                    t,
+                    flask.request.form.get('username')
+                    )
+                )
+                cur.execute("UPDATE book_status SET status = 'checked out', last_transaction = (?) WHERE ISBN = (?)",
+                    (
+                    t,
+                    flask.request.form.get('isbn')
+                    )
+                )               
+                con.commit()
+                con.close()
                 status = "Book '{}' checked out!".format(lib[flask.request.form.get('isbn')]['BOOKNAME'])
                 return flask.redirect('/')
-            # Checkin (close latest transaction)
-            if lib[flask.request.form.get('isbn')]['CHECKOUT_STATUS'] == 'checked_out':
-                lib[flask.request.form.get('isbn')]['CHECKOUT_STATUS'] = 'checked_in'
-                lib[flask.request.form.get('isbn')]['TRANSACTION_DATES'][-1].append(datetime.datetime.today().isoformat('T', 'seconds'))
-                with open('library.yaml', 'w') as library:
-                    yaml.safe_dump(lib, library)
+            # Checkin
+            if lib[flask.request.form.get('isbn')]['BOOK_STATUS'] == 'checked out':
+                # First change internal representation (lib)
+                lib[flask.request.form.get('isbn')]['BOOK_STATUS'] = 'checked in'
+                # Then write to database
+                con = sqlite3.connect(conf["library_db"])
+                cur = con.cursor()
+                t = datetime.datetime.today().isoformat('T', 'seconds')
+                cur.execute("INSERT INTO transactions VALUES(?,?,?,?)",
+                    (
+                    flask.request.form.get('isbn'),
+                    "check in",
+                    t,
+                    flask.request.form.get('username')
+                    )
+                )
+                cur.execute("UPDATE book_status SET status = 'checked in', last_transaction = (?) WHERE ISBN = (?)",
+                    (
+                    t,
+                    flask.request.form.get('isbn')
+                    )
+                )
+                con.commit()
+                con.close()
                 status = "Book '{}' checked in!".format(lib[flask.request.form.get('isbn')]['BOOKNAME'])
                 return flask.redirect('/')
         else:
@@ -76,34 +137,37 @@ def main():
 @app.route('/add', methods=['POST'])
 def add():
     global status, lib
-    # Read stuff from web form
+    t = datetime.datetime.today().isoformat('T', 'seconds')
+    
+    # Read ISBN from web form
     isbn = flask.request.form.get('isbn_new')
-    if (lib != None) and (isbn in lib):
+    # Abort if ISBN already in library
+    if isbn in lib:
         status = "Error: duplicate ISBN {}".format(isbn)
         return flask.redirect('/')
-    bookname = flask.request.form.get('bookname')
-    author = flask.request.form.get('author')
-    purchase_date = flask.request.form.get('purchase_date')
-    purchase_location = flask.request.form.get('purchase_location')
-    genre = flask.request.form.get('genre')
-    location = flask.request.form.get('location')
-    checkout_status = flask.request.form.get('checkout_status')
-    transaction_dates =[[datetime.datetime.today().isoformat('T', 'seconds')]]
 
-    # Initialize library entry
-    if lib == None:
-        lib = dict()
+    # Create library entry in internal representation
     lib[isbn] = dict()
-    lib[isbn]['BOOKNAME'] = ''
-    lib[isbn]['AUTHOR'] = ''
-    lib[isbn]['PURCHASE_DATE'] = ''
-    lib[isbn]['PURCHASE_LOCATION'] = ''
-    lib[isbn]['GENRE'] = ''
-    lib[isbn]['LOCATION'] = ''
-    lib[isbn]['CHECKOUT_STATUS'] = '-'
-    lib[isbn]['TRANSACTION_DATES'] = transaction_dates
-    
-    # Automatically fetch metadata?
+    lib[isbn]['BOOKNAME'] = flask.request.form.get('bookname')
+    lib[isbn]['AUTHORS'] = flask.request.form.get('author')
+    lib[isbn]['LANGUAGE'] = ''
+    lib[isbn]['PUBLISHER'] = ''
+    lib[isbn]['PUBLICATION_YEAR'] = ''
+    lib[isbn]['GENRES'] = flask.request.form.get('genre')
+    lib[isbn]['ACQUISITION_DATE'] = flask.request.form.get('acquisition_date')
+    lib[isbn]['ACQUISITION_LOCATION'] = flask.request.form.get('acquisition_location')
+    lib[isbn]['HOME_SHELF'] = flask.request.form.get('location')
+    lib[isbn]['TRANSACTIONS'].append(
+        {
+        'TRANSACTION_TYPE': 'check in',
+        'TRANSACTION_DATE': t,
+        'USERNAME': flask.request.form.get('username')
+        }
+    )
+    lib[isbn]['BOOK_STATUS'] = flask.request.form.get('checkout_status')
+    lib[isbn]['LAST_TRANSACTION'] = t
+
+    # Automatically fetch metadata? (Fetched metadata overrides manually entered data)
     if conf['isbnlib_fetch_meta'] and ISBNlib_imported:
         try:
             metadata = isbnlib.meta(isbn)
@@ -112,44 +176,75 @@ def add():
             lib.pop(isbn)
             return flask.redirect('/')
         lib[isbn]['BOOKNAME'] = metadata['Title']
-        bookname = metadata['Title']
-        lib[isbn]['AUTHOR'] = ', '.join(metadata['Authors'])
-    else:
-        lib[isbn]['BOOKNAME'] = bookname
-        lib[isbn]['AUTHOR'] = author
+        lib[isbn]['AUTHORS'] = ', '.join(metadata['Authors'])
+        lib[isbn]['LANGUAGE'] = metadata['Language']
+        lib[isbn]['PUBLISHER'] = metadata['Publisher']
+        lib[isbn]['PUBLICATION_YEAR'] = metadata['Year']
 
-    lib[isbn]['PURCHASE_DATE'] = purchase_date
-    lib[isbn]['PURCHASE_LOCATION'] = purchase_location
-    lib[isbn]['GENRE'] = genre
-    lib[isbn]['LOCATION'] = location
-    lib[isbn]['CHECKOUT_STATUS'] = checkout_status
-    lib[isbn]['TRANSACTION_DATES'] = transaction_dates
-    
-    with open('library.yaml', 'w') as library:
-        yaml.safe_dump(lib, library)
+    # Write to database
+    con = sqlite3.connect(conf["library_db"])
+    cur = con.cursor()
+    cur.execute("INSERT INTO item_info VALUES(?,?,?,?,?,?,?,?,?,?)",
+        (
+        isbn,
+        lib[isbn]['BOOKNAME'],
+        lib[isbn]['AUTHORS'],
+        lib[isbn]['LANGUAGE'],
+        lib[isbn]['PUBLISHER'],
+        lib[isbn]['PUBLICATION_YEAR'],
+        lib[isbn]['GENRES'],
+        lib[isbn]['ACQUISITION_DATE'],
+        lib[isbn]['ACQUISITION_LOCATION'],
+        lib[isbn]['HOME_SHELF']
+        )
+    )
+    cur.execute("INSERT INTO transactions VALUES(?,?,?,?)",
+        (
+        flask.request.form.get('isbn'),
+        "check in",
+        t,
+        flask.request.form.get('username')
+        )
+    )
+    cur.execute("UPDATE book_status SET status = 'checked in', last_transaction = (?) WHERE ISBN = (?)",
+        (
+        t,
+        isbn
+        )
+    )    
+    con.commit()    
+    con.close()
+
     status = "Book '{}' added!".format(bookname)
     return flask.redirect('/')
 
 @app.route('/stats', methods=['GET'])
 def stats():
     global status, lib
-    # Load library and calculate stats
-    ## Get books with highest number of transactions
+    # This function is supposed to *only* read data to calculate stats, so
+    # we're reading from the internal representation;
+    # *take care not to modify the internal representation!*
+
+    ## Get books with highest number of transactions (checkin + checkout)
     transaction_counts = list([0,list()])
+    
     for isbn in lib:
-        transactions = len(lib[isbn]['TRANSACTION_DATES'])
+        transactions = len(lib[isbn]['TRANSACTIONS'])
         if transactions > transaction_counts[0]:
             transaction_counts[0] = transactions
             transaction_counts[1] = [lib[isbn]['BOOKNAME']]
         elif transactions == transaction_counts[0]:
             transaction_counts[1].append(lib[isbn]['BOOKNAME'])
+        
     ## Get book with longest known checkout time
     longest_checkout = list([datetime.timedelta(), ''])
     for isbn in lib:
-        for transaction in lib[isbn]['TRANSACTION_DATES']:
-            if len(transaction) < 2:
-                continue
-            delta = datetime.datetime.strptime(transaction[1], '%Y-%m-%dT%H:%M:%S') - datetime.datetime.strptime(transaction[0], '%Y-%m-%dT%H:%M:%S')
+        sessions = list(zip(
+            [transaction['TRANSACTION_DATE'] for transaction in lib[isbn]['TRANSACTIONS'] if transaction['TRANSACTION_TYPE'] == 'check in'],
+            [transaction['TRANSACTION_DATE'] for transaction in lib[isbn]['TRANSACTIONS'] if transaction['TRANSACTION_TYPE'] == 'check out']
+        ))
+        for session in sessions:
+            delta = datetime.datetime.strptime(session[1], '%Y-%m-%dT%H:%M:%S') - datetime.datetime.strptime(session[0], '%Y-%m-%dT%H:%M:%S')
             if delta > longest_checkout[0]:
                 longest_checkout[0] = delta
                 # Unlikely that two real transactions would be exactly the same length, down to the second
@@ -161,12 +256,13 @@ def stats():
             'data': [
               {
                 'x': list([lib[isbn]['BOOKNAME'] for isbn in lib]),
-                'y': list([len(lib[isbn]['TRANSACTION_DATES']) for isbn in lib]),
+                'y': list([len(lib[isbn]['TRANSACTIONS']) for isbn in lib]),
                 'type': 'bar'}
             ]
         }
     ]
-    transaction_counts_plotJSON = json.dumps(transaction_counts_plotdata, cls=plotly.utils.PlotlyJSONEncoder)
+
+    transaction_counts_plotJSON = json.dumps(transaction_counts_plotdata)
 
     # Generate graphs
     ## barplot: book name / total transaction count

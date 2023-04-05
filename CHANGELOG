@@ -1,6 +1,10 @@
 # Changelog for minihomelib
 
 ## [Unreleased]
+### Changed
+- Switch to SQLite3 for book database
+- Switch to TOML for configuration
+- Add basic stats
 
 ## [0.1.0] 2022-11-09
 ### Added
