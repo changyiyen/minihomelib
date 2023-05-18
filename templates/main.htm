@@ -4,7 +4,8 @@
         <meta charset="utf-8" />
         <title>Library Management System</title>
         <style>
-            td { border: 1px solid; border-color: blue; padding: 5px;}
+            td { border: 1px solid; border-color: blue; padding: 5px; }
+			.table_header { cursor:pointer; }
         </style>
         <script type="text/javascript">
             function show_book_addition() {
@@ -38,73 +39,83 @@
 					t.push(book_table.children[i]);
 				}
 				t = t.sort(function(a, b){return a.cells[n].innerText > b.cells[n].innerText;});
-				// TODO: Write contents of t to original table
+				// Write contents of t to original table
+				for (i=0; i < book_table.children.length; i++) {
+					book_table.appendChild(t[i]);
+				}
 			}
         </script>
     </head>
     <body>
         <h1 style="text-align: center;">Library Management System</h1>
         <p style="text-align: right;">Page generated at {{ pagedate }}</p>
-        <form method="POST" id="mainform">
+        <form style="text-align: center;" method="POST" id="mainform">
             <input type="text" placeholder="ISBN" id="isbn" name="isbn" autofocus>
 			<button type="button" id="show_add_book" name="show_add_book" onClick="show_book_addition();" title="Show form for adding a book">Add a book</button>
             <!-- <input type="button" value="Check-out/Check-in" name="transact" onClick="transact();"> -->
 			<button type="submit" id="transact" name="transact" title="Check-in or check-out an existing book">Check-out/Check-in</button>
         </form>
-		<div style="text-align: right;"><button onclick='window.location.href="stats"'>Stats</button></div>
-        <form method="POST" action="/add" id="book_addition" style="visibility: hidden;">
-		    <table>
-			<tr>
-                <td><label>ISBN: </label></td>
-				<td><input type="text" placeholder="ISBN" name="isbn_new" id="isbn_new" required autofocus></td>
-			</tr>
-			<tr>
-                <td><label>Book name: </label></td>
-				<td><input type="text" placeholder="Name of book" name="bookname" id="bookname"></td>
-			</tr>
-			<tr>
-                <td><label>Author name: </label></td>
-				<td><input type="text" placeholder="Name of author" name="author" id="author"></td>
-			</tr>
-			<tr>
-                <td><label>Acquisition date: </label></td>
-				<td><input type="date" name="acquisition_date" id="acquisition_date"></td>
-			</tr>
-			<tr>
-                <td><label>Location of acquisition: </label></td>
-				<td><input type="text" placeholder="Where book was acquired" name="acquisition_location" id="acquisition_location"></td>
-			</tr>
-			<tr>
-                <td><label>Genre: </label></td>
-				<td><input type="text" placeholder="Genre" name="genre" id="genre"></td>
-			</tr>
-			<tr>
-		        <td><label style="color: red">Book location: </label></td>
-			{% if shelves -%}
-			    <td><select name="location" id="location" required>
-			{% for room_name in shelves -%}
-			    <optgroup label="{{ room_name }}">
-				{% for shelf_no in shelves[room_name] -%}
-				    <option value="{{ room_name }}, {{ shelf_no }}">{{ shelf_no }}</option>
-				{% endfor -%}
-				</optgroup>
-			{% endfor -%}
-			    </select></td>
-		    {% else -%}
-			    <td><input type="text" placeholder="Shelf where book belongs" name="location" id="location" required></td>
-			{% endif -%}
-			<tr>
-                <td><label>User: </label></td>
-				<td><input type="text" value="username" name="username" id="username" required></td>
-			</tr>
-            <input type="hidden" name="checkout_status" id="checkout_status" value="checked in">
-            <input type="hidden" name="transaction_date" id="transaction_date" value="[]">
-			<tr>
-				<button type="submit" name="add_book" id="add_book" title="Add book to database">Add</button>
-				<button type="button" name="cancel_add_book" id="cancel_add_book" onClick="cancel_book_addition();" title="Cancel book addition">Cancel</button>
-			</tr>
-			</table>
-        </form>
+		<div style="text-align: right;">
+			<button onclick='window.location.href="stats"'>Stats</button>
+		</div>
+			<form method="POST" action="/add" id="book_addition" style="visibility: hidden;">
+				<table style="margin: auto;">
+					<tr>
+						<td><label>ISBN: </label></td>
+						<td><input type="text" placeholder="ISBN" name="isbn_new" id="isbn_new" required autofocus></td>
+					</tr>
+					<tr>
+						<td><label>Book name: </label></td>
+						<td><input type="text" placeholder="Name of book" name="bookname" id="bookname"></td>
+					</tr>
+					<tr>
+						<td><label>Author name: </label></td>
+						<td><input type="text" placeholder="Name of author" name="author" id="author"></td>
+					</tr>
+					<tr>
+						<td><label>Acquisition date: </label></td>
+						<td><input type="date" name="acquisition_date" id="acquisition_date"></td>
+					</tr>
+					<tr>
+						<td><label>Location of acquisition: </label></td>
+						<td><input type="text" placeholder="Where book was acquired" name="acquisition_location" id="acquisition_location"></td>
+					</tr>
+					<tr>
+						<td><label>Genre: </label></td>
+						<td><input type="text" placeholder="Genre" name="genre" id="genre"></td>
+					</tr>
+					<tr>
+						<td><label style="color: red">Book location: </label></td>
+						{% if shelves -%}
+						<td>
+							<select name="location" id="location" required>
+							{% for room_name in shelves -%}
+								<optgroup label="{{ room_name }}">
+								{% for shelf_no in shelves[room_name] -%}
+									<option value="{{ room_name }}, {{ shelf_no }}">{{ shelf_no }}</option>
+								{% endfor -%}
+								</optgroup>
+							{% endfor -%}
+							</select>
+						</td>
+						{% else -%}
+						<td>
+							<input type="text" placeholder="Shelf where book belongs" name="location" id="location" required>
+						</td>
+						{% endif -%}
+					</tr>
+					<tr>
+						<td><label>User: </label></td>
+						<td><input type="text" value="username" name="username" id="username" required></td>
+					</tr>
+					<input type="hidden" name="checkout_status" id="checkout_status" value="checked in">
+					<input type="hidden" name="transaction_date" id="transaction_date" value="[]">
+					<div style="text-align: center;">
+						<button type="submit" name="add_book" id="add_book" title="Add book to database">Add book to database</button>
+						<button type="button" name="cancel_add_book" id="cancel_add_book" onClick="cancel_book_addition();" title="Cancel book addition">Cancel</button>
+					</div>
+				</table>
+			</form>
         <hr>
         <p id="indicator" style="background-color: lavender;">{{ status }}</p>
         <hr>
@@ -112,7 +123,7 @@
         <table>
             <!-- Generate table of books -->
 			<thead>
-            <tr>
+            <tr class="table_header">
                 <th onClick="colsort(0);">ISBN</th>
                 <th onClick="colsort(1);">Name</th>
                 <th onClick="colsort(2);">Author</th>
