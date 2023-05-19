@@ -60,18 +60,18 @@
 			<button onclick='window.location.href="stats"'>{{ ui_translations['stats_button_label'][ui_lang] }}</button>
 		</div>
 			<form method="POST" action="/add" id="book_addition" hidden>
-				<table style="margin: auto;">
+				<table style="margin: auto; width: auto;">
 					<tr>
 						<td><label>ISBN: </label></td>
-						<td><input type="text" placeholder="ISBN" name="isbn_new" id="isbn_new" required autofocus></td>
+						<td><input type="text" size="15" placeholder="ISBN" name="isbn_new" id="isbn_new" required autofocus></td>
 					</tr>
 					<tr>
 						<td><label>{{ ui_translations['add_book_bookname_label'][ui_lang] }}</label></td>
-						<td><input type="text" placeholder="{{ ui_translations['add_book_bookname_placeholder'][ui_lang] }}" name="bookname" id="bookname"></td>
+						<td><input type="text" size="50" placeholder="{{ ui_translations['add_book_bookname_placeholder'][ui_lang] }}" name="bookname" id="bookname"></td>
 					</tr>
 					<tr>
 						<td><label>{{ ui_translations['add_book_authorname_label'][ui_lang] }}</label></td>
-						<td><input type="text" placeholder="{{ ui_translations['add_book_authorname_placeholder'][ui_lang] }}" name="author" id="author"></td>
+						<td><input type="text" size="30" placeholder="{{ ui_translations['add_book_authorname_placeholder'][ui_lang] }}" name="author" id="author"></td>
 					</tr>
 					<tr>
 						<td><label>{{ ui_translations['add_book_acquisitiondate_label'][ui_lang] }}</label></td>
@@ -79,11 +79,11 @@
 					</tr>
 					<tr>
 						<td><label>{{ ui_translations['add_book_source_label'][ui_lang] }}</label></td>
-						<td><input type="text" placeholder="{{ ui_translations['add_book_source_placeholder'][ui_lang] }}" name="acquisition_location" id="acquisition_location"></td>
+						<td><input type="text" size="50" placeholder="{{ ui_translations['add_book_source_placeholder'][ui_lang] }}" name="acquisition_location" id="acquisition_location" autocomplete></td>
 					</tr>
 					<tr>
 						<td><label>{{ ui_translations['add_book_genre_label'][ui_lang] }}</label></td>
-						<td><input type="text" placeholder="{{ ui_translations['add_book_genre_placeholder'][ui_lang] }}" name="genre" id="genre"></td>
+						<td><input type="text" size="30" placeholder="{{ ui_translations['add_book_genre_placeholder'][ui_lang] }}" name="genre" id="genre" autocomplete></td>
 					</tr>
 					<tr>
 						<td><label style="color: red">{{ ui_translations['add_book_location_label'][ui_lang] }}</label></td>
@@ -107,7 +107,7 @@
 					</tr>
 					<tr>
 						<td><label>{{ ui_translations['add_book_user_label'][ui_lang] }}</label></td>
-						<td><input type="text" value="username" name="username" id="username" required></td>
+						<td><input type="text" value="username" name="username" id="username" autocomplete required></td>
 					</tr>
 					<input type="hidden" name="checkout_status" id="checkout_status" value="checked in">
 					<input type="hidden" name="transaction_date" id="transaction_date" value="[]">
