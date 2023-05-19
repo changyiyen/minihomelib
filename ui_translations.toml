@@ -1,0 +1,149 @@
+# minihomelib web UI translations
+
+[title]
+  "en" = "Library Management System"
+  "zh-TW" = "圖書管理系統"
+
+[page_generation_time_msg]
+  "en" = "Page generated at"
+  "zh-TW" = "頁面生成於"
+
+[add_book_form_button_title]
+  "en" = "Show form for adding a book"
+  "zh-TW" = "顯示新增圖書需填的表單"
+
+[add_book_form_button_label]
+  "en" = "Add a book"
+  "zh-TW" = "新增圖書"
+
+[checkin_checkout_button_title]
+  "en" = "Check-in or check-out an existing book"
+  "zh-TW" = "借閱或還回資料庫內圖書"
+
+[checkin_checkout_button_label]
+  "en" = "Check-out/Check-in"
+  "zh-TW" = "借/還書"
+
+[stats_button_label]
+  "en" = "Stats"
+  "zh-TW" = "統計"
+
+[add_book_bookname_label]
+  "en" = "Book name: "
+  "zh-TW" = "書名: "
+
+[add_book_bookname_placeholder]
+  "en" = "Name of book"
+  "zh-TW" = "書名"
+
+[add_book_authorname_label]
+  "en" = "Author name: "
+  "zh-TW" = "作者名: "
+
+[add_book_authorname_placeholder]
+  "en" = "Name of author"
+  "zh-TW" = "作者名"
+
+[add_book_acquisitiondate_label]
+  "en" = "Book acquisition date: "
+  "zh-TW" = "圖書取得日期: "
+
+[add_book_source_label]
+  "en" = "Source of book: "
+  "zh-TW" = "圖書來源: "
+
+[add_book_source_placeholder]
+  "en" = "Source of book (e.g., bookstore name)"
+  "zh-TW" = "圖書從哪裡獲得的(例: 書店名)"
+
+[add_book_genre_label]
+  "en" = "Genre: "
+  "zh-TW" = "圖書分類: "
+
+[add_book_genre_placeholder]
+  "en" = "Genre of book (e.g., literature, science fiction)"
+  "zh-TW" = "圖書分類(例: 文學、科幻)"
+
+[add_book_location_label]
+  "en" = "Book location: "
+  "zh-TW" = "圖書位置: "
+
+[add_book_location_placeholder]
+  "en" = "Shelf where book belongs"
+  "zh-TW" = "圖書該放在哪個架上"
+
+[add_book_user_label]
+  "en" = "User: "
+  "zh-TW" = "使用者: "
+
+[add_book_button_title]
+  "en" = "Add book to database"
+  "zh-TW" = "新增圖書至資料庫"
+
+[add_book_button_label]
+  "en" = "Add book"
+  "zh-TW" = "新增圖書"
+
+[cancel_add_book_button_title]
+  "en" = "Cancel book addition"
+  "zh-TW" = "取消新增圖書"
+
+[cancel_add_book_button_label]
+  "en" = "Cancel"
+  "zh-TW" = "取消"
+
+[library_header]
+  "en" = "Current library"
+  "zh-TW" = "藏書"
+
+[book_table_name]
+  "en" = "Name"
+  "zh-TW" = "書名"
+
+[book_table_author]
+  "en" = "Author"
+  "zh-TW" = "作者"
+
+[book_table_language]
+  "en" = "Language"
+  "zh-TW" = "圖書語言"
+
+[book_table_publisher]
+  "en" = "Publisher"
+  "zh-TW" = "出版者"
+
+[book_table_pubyear]
+  "en" = "Publication year"
+  "zh-TW" = "出版年分"
+
+[book_table_genre]
+  "en" = "Genre"
+  "zh-TW" = "分類"
+
+[book_table_acquisitiondate]
+  "en" = "Acquisition date"
+  "zh-TW" = "取得日期"
+
+[book_table_source]
+  "en" = "Book source"
+  "zh-TW" = "來源"
+
+[book_table_location]
+  "en" = "Book location"
+  "zh-TW" = "圖書位置"
+
+[book_table_lendstatus]
+  "en" = "Lending status"
+  "zh-TW" = "出借狀態"
+
+[book_table_lasttransaction]
+  "en" = "Last transaction"
+  "zh-TW" = "最後出借或歸還日期"
+
+[book_table_checkedout]
+  "en" = "Checked out"
+  "zh-TW" = "出借"
+
+[book_table_checkedin]
+  "en" = "Checked in"
+  "zh-TW" = "歸還"

@@ -21,6 +21,9 @@ import tomllib
 with open('config.toml', 'rb') as configfile:
     conf = tomllib.load(configfile)
 
+with open('ui_translations.toml', 'rb') as translations:
+    ui_translations = tomllib.load(translations)
+
 # Load initial data
 lib = dict()
 con = sqlite3.connect(conf["library_db"])
@@ -57,12 +60,15 @@ for row in book_status:
 
 app = flask.Flask(__name__)
 status = ""
+supported_languages = ["en", "zh-TW"]
 
 @app.route('/', methods=['GET','POST'])
 def main():
     global status, lib
     if flask.request.method == 'GET':
         return flask.render_template('main.htm',
+            ui_translations=ui_translations,
+            ui_lang=flask.request.accept_languages.best_match(supported_languages),
             lib=lib,
             pagedate=datetime.datetime.today().isoformat('T', 'seconds'),
             status=status,
@@ -272,6 +278,8 @@ def stats():
     ## histogram: time (month) / number of books acquired for each month
     ## histogram: time / total cumulative book count
     return flask.render_template('stats.htm',
+        ui_translations=ui_translations,
+        ui_lang=flask.request.accept_languages.best_match(supported_languages),
         pagedate=datetime.datetime.today().isoformat('T', 'seconds'),
         status=status,
         transaction_counts=transaction_counts,
