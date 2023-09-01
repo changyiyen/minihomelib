@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Information for {{bookname}}</title>
+		<style>
+			table {
+				margin: 0;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				-ms-transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%);
+			}
+		</style>
+	</head>
+	<body>
+		<h1 style="text-align: center;">Information for {{bookname}}</h1>
+		<hr>
+		{% with messages = get_flashed_messages() -%}
+			{% if messages -%}
+			<ul id="indicator" style="background-color: lavender;">
+			{% for message in messages -%}
+				{% if message in ui_translations -%}
+				<li>{{ ui_translations[message][ui_lang] }}</li>
+				{% else %}
+				<li>{{ message }}</li>
+				{% endif -%}
+			{% endfor -%}
+			</ul>
+			{% endif -%}
+		{% endwith -%}
+		<hr>
+		<!-- Dynamically generated book info goes here -->
+		<table>
+			<thead>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</body>
+</html>

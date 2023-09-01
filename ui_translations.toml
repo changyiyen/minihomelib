@@ -1,5 +1,11 @@
 # minihomelib web UI translations
 
+## Main user interface
+
+[noscript]
+  "en" = "This interface requires JavaScript. Please enable it in your browser."
+  "zh-TW" = "本介面需使用JavaScript；請開啟。"
+
 [title]
   "en" = "Library Management System"
   "zh-TW" = "圖書管理系統"
@@ -7,6 +13,14 @@
 [page_generation_time_msg]
   "en" = "Page generated at"
   "zh-TW" = "頁面生成於"
+
+[current_user]
+  "en" = "Currently logged in as"
+  "zh-TW" = "目前登入為"
+
+[log_out]
+  "en" = "Log out"
+  "zh-TW" = "登出"
 
 [add_book_form_button_title]
   "en" = "Show form for adding a book"
@@ -24,7 +38,7 @@
   "en" = "Check-out/Check-in"
   "zh-TW" = "借/還書"
 
-[stats_button_label]
+[stats_label]
   "en" = "Stats"
   "zh-TW" = "統計"
 
@@ -72,17 +86,13 @@
   "en" = "Shelf where book belongs"
   "zh-TW" = "圖書該放在哪個架上"
 
-[add_book_user_label]
-  "en" = "User: "
-  "zh-TW" = "使用者: "
-
 [add_book_button_title]
   "en" = "Add book to database"
   "zh-TW" = "新增圖書至資料庫"
 
 [add_book_button_label]
   "en" = "Add book"
-  "zh-TW" = "新增圖書"
+  "zh-TW" = "確認新增"
 
 [cancel_add_book_button_title]
   "en" = "Cancel book addition"
@@ -92,9 +102,17 @@
   "en" = "Cancel"
   "zh-TW" = "取消"
 
+[searchbox_placeholder_label]
+  "en" = "Filter"
+  "zh-TW" = "過濾"
+
 [library_header]
   "en" = "Current library"
   "zh-TW" = "藏書"
+
+[new_arrivals_header]
+  "en" = "New arrivals"
+  "zh-TW" = "新進圖書"
 
 [book_table_name]
   "en" = "Name"
@@ -147,3 +165,119 @@
 [book_table_checkedin]
   "en" = "Checked in"
   "zh-TW" = "歸還"
+
+[book_table_cover]
+  "en" = "Book cover"
+  "zh-TW" = "封面"
+
+[past_due_openquote]
+  "en" = "Book '"
+  "zh-TW" = "《"
+
+[past_due_closequote]
+  "en" = "' "
+  "zh-TW" = "》"
+
+[past_due_main]
+  "en" = "checked out for over"
+  "zh-TW" = "已出借超過"
+
+[past_due_end_days]
+  "en" = "days"
+  "zh-TW" = "天"
+
+## Login page
+
+[login_title]
+  "en" = "minihomelib - login"
+  "zh-TW" = "圖書管理系統 - 登入"
+
+[login_username]
+  "en" = "User name"
+  "zh-TW" = "使用者名稱"
+
+[login_password]
+  "en" = "Password"
+  "zh-TW" = "密碼"
+
+[login_submit]
+  "en" = "Log in"
+  "zh-TW" = "登入"
+
+[login_add_user_message]
+  "en" = "New user? Click <a href='adduser'>here</a> to register."
+  "zh-TW" = "新用戶? 按<a href='adduser'>這裡</a>註冊。"
+
+## Add user page
+
+[adduser_title]
+  "en" = "minihomelib - add user"
+  "zh-TW" = "圖書管理系統 - 新增使用者"
+
+[adduser_username]
+  "en" = "User name"
+  "zh-TW" = "使用者名稱"
+
+[adduser_password]
+  "en" = "Password"
+  "zh-TW" = "密碼"
+
+[adduser_password_confirm]
+  "en" = "Confirm password"
+  "zh-TW" = "確認密碼"
+
+[adduser_submit]
+  "en" = "Add user"
+  "zh-TW" = "新增使用者"
+
+## Stats page
+
+[stats_title]
+  "en" = "Library Management System - stats"
+  "zh-TW" = "圖書管理系統 - 統計"
+
+[stats_most_transactions]
+  "en" = "Most checkout/checkins"
+  "zh-TW" = "出借/還回最多次"
+
+[stats_transactions]
+  "en" = "transactions"
+  "zh-TW" = "次"
+
+[stats_longest_checkout]
+  "en" = "Longest checkout"
+  "zh-TW" = "出借最久"
+
+## Message translations
+
+[EinvalidISBN]
+  "en" = "[ERROR] Invalid ISBN"
+  "zh-TW" = "[錯誤] 非ISBN"
+
+[EmissingISBN]
+  "en" = "[ERROR] ISBN not in library"
+  "zh-TW" = "[錯誤] 書庫中無此ISBN"
+
+[EduplicateISBN]
+  "en" = "[ERROR] Duplicate ISBN"
+  "zh-TW" = "[錯誤] ISBN重複"
+
+[Ebadlogin]
+  "en" = "[ERROR] Login failed"
+  "zh-TW" = "[錯誤] 登入失敗"
+
+[Eduplicateusername]
+  "en" = "[ERROR] User name already taken!"
+  "zh-TW" = "[錯誤] 使用者名稱重複!"
+
+[Iregistersuccess]
+  "en" = "Successfully registered!"
+  "zh-TW" = "登錄成功!"
+
+[Ilogin]
+  "en" = "Please log in."
+  "zh-TW" = "請登入。"
+
+[Iloggedout]
+  "en" = "Logged out!"
+  "zh-TW" = "已登出"

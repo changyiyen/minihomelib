@@ -1,11 +1,25 @@
 # Changelog for minihomelib
 
 ## [Unreleased]
-### Changed
-- Switch to SQLite3 for book database
-- Switch to TOML for configuration
+
+### Added
+
+- Add user sessions using log-in mechanism (Flask-Login, passlib)
+- Add user interface translations
 - Add basic stats
 
+### Fixed
+
+### Changed
+
+- Enhanced UI: search (filter) and sort by column, book covers, new book arrivals
+- Switched to flask.flash for message passing
+- Switch to SQLite3 for book database
+- Switch to TOML for configuration
+
+### Removed
+
 ## [0.1.0] 2022-11-09
+
 ### Added
 - Initial release

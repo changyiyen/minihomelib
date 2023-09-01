@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>{{ ui_translations['adduser_title'][ui_lang] }}</title>
+		<style>
+			table {
+				margin: 0;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				-ms-transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%);
+			}
+		</style>
+	</head>
+	<body>
+	    <noscript>{{ ui_translations['noscript'][ui_lang] }}</noscript>
+		<h1 style="text-align: center;">{{ ui_translations['adduser_title'][ui_lang] }}</h1>
+		<hr>
+		{% with messages = get_flashed_messages() -%}
+			{% if messages -%}
+			<ul id="indicator" style="background-color: lavender;">
+			{% for message in messages -%}
+				{% if message in ui_translations -%}
+				<li>{{ ui_translations[message][ui_lang] }}</li>
+				{% else %}
+				<li>{{ message }}</li>
+				{% endif -%}
+			{% endfor -%}
+			</ul>
+			{% endif -%}
+		{% endwith -%}
+		<hr>
+		<form method="POST" action="/adduser">
+			<table>
+				<tr>
+					<td><label for="username">{{ ui_translations['adduser_username'][ui_lang] }}:</label></td>
+					<td><input type="text" id="username" name="username" placeholder="User name"></td>
+				</tr>
+				<tr>
+					<td><label for="password">{{ ui_translations['adduser_password'][ui_lang] }}:</label></td>
+					<td><input type="password" id="password" name="password"></td>
+				</tr>
+				<tr>
+					<td><label for="password_confirm">{{ ui_translations['adduser_password_confirm'][ui_lang] }}:</label></td>
+					<td><input type="password" id="password_confirm" name="password_confirm"></td>
+				</tr>
+				<tr>
+					<td><button type="submit" id="submit_new_user">{{ ui_translations['adduser_submit'][ui_lang] }}</button></td>
+				</tr>
+			</table>
+		</form>
+		<script type="text/javascript">
+			var pw = document.getElementById('password');
+		    var confpw = document.getElementById('password_confirm');
+			pw.addEventListener('keyup', function(){
+				if (document.getElementById('password').value == document.getElementById('password_confirm').value){
+					confpw.style.backgroundColor = "lime";
+					document.getElementById('submit_new_user').disabled = false;
+				}
+				else {
+					confpw.style.backgroundColor = "red";
+					document.getElementById('submit_new_user').disabled = true;
+				}
+			})
+			confpw.addEventListener('keyup', function(){
+				if (document.getElementById('password').value == document.getElementById('password_confirm').value){
+					confpw.style.backgroundColor = "lime";
+					document.getElementById('submit_new_user').disabled = false;
+				}
+				else {
+					confpw.style.backgroundColor = "red";
+					document.getElementById('submit_new_user').disabled = true;
+				}
+			})
+		</script>
+	</body>
+</html>

@@ -2,42 +2,63 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Library Management System</title>
+        <title>{{ ui_translations['stats_title'][ui_lang] }}</title>
         <style>
             td { border: 1px solid; border-color: blue; padding: 5px;}
         </style>
-		<script src= {{ url_for('static', filename='plotly-2.18.2.min.js') }}>
+		<script src= {{ url_for('static', filename='plotly-2.26.0.min.js') }}>
 		</script>
     </head>
     <body>
-        <h1 style="text-align: center;">Library Management System - Stats</h1>
-        <p style="text-align: right;">Page generated at {{ pagedate }}</p>
+        <h1 style="text-align: center;">{{ ui_translations['stats_title'][ui_lang] }}</h1>
+        <p style="text-align: right;">{{ ui_translations['page_generation_time_msg'][ui_lang] }}{{ pagedate }}</p>
         <hr>
-        <p id="indicator" style="background-color: lavender;">{{ status }}</p>
+        <p id="indicator" style="background-color: lavender;">
+		{% with messages = get_flashed_messages() -%}
+			{% if messages -%}
+			<ul id="indicator" style="background-color: lavender;">
+			{% for message in messages -%}
+				{% if message in ui_translations -%}
+				<li>{{ ui_translations[message][ui_lang] }}</li>
+				{% else %}
+				<li>{{ message }}</li>
+				{% endif -%}
+			{% endfor -%}
+			</ul>
+			{% endif -%}
+		{% endwith -%}
+		</p>
         <hr>
-		<button onclick="window.location.href='/'">Back</button>
-		<table>
+		<a href="/">Main page</a>
+		<table style="margin: auto; width: auto;">
 		    <tr>
-		        <td>Most checkout/checkins</td>
-				<td>{{transaction_counts[1]}} ({{transaction_counts[0]}} transactions)</td>
+		        <td>{{ ui_translations['stats_most_transactions'][ui_lang] }}</td>
+				<td>{{transaction_counts[1]}} ({{transaction_counts[0]}} {{ ui_translations['stats_transactions'][ui_lang] }})</td>
 		    </tr>
 			<tr>
-			    <td>Longest checkout</td>
+			    <td>{{ ui_translations['stats_longest_checkout'][ui_lang] }}</td>
 				<td>{{longest_checkout[1]}} ({{longest_checkout[0]}})</td>
 			</tr>
 		</table>
 		<!-- Barchart of bookname/transaction counts -->
 		<div id="transaction_counts_bar"></div>
 		<script type="text/javascript">
-			var graphs = {{transaction_counts_plotJSON | safe}};
-			Plotly.newPlot("transaction_counts_bar", graphs[0]);
+			var graphs = [{{transaction_counts_plotJSON | safe}}];
+			console.log(graphs);
+			var layout = {
+				"title": {"text": "Transaction counts"},
+				"font": {"size": 18}
+			};
+			var config = {"responsive": true};
+			Plotly.newPlot("transaction_counts_bar", graphs, layout, config);
 		</script>
-		
-		<div id="checkout_intervals_bar" style="width:600px;height:250px;"></div>
-		<div id="genre_transactions_bar" style="width:600px;height:250px;"></div>
-		<div id="last_month_genres_bar" style="width:600px;height:250px;"></div>
-		<div id="acquired_histo" style="width:600px;height:250px;"></div>
-		<div id="acquired_genre_stackedhisto" style="width:600px;height:250px;"></div>
-		<div id="cumulative_histo" style="width:600px;height:250px;"></div>
+		<!--
+		<div id="checkout_intervals_bar"></div>
+		<div id="genre_transactions_bar"></div>
+		<div id="last_month_genres_bar"></div>
+		<div id="acquired_histo"></div>
+		<div id="acquired_genre_stackedhisto"></div>
+		<div id="cumulative_histo"></div>
+		-->
     </body>
 </html>

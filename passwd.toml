@@ -1,0 +1,5 @@
+[cat]
+password = "$2b$12$r6svPxKNlDS3J6upW8I5j.SdmTZGwlpq36WYjjIDMmVYCEytCwDP6"
+
+[rabbit]
+password = "$2b$12$l8M4EEXzrseT8bqk2M77Veaflb7jVUwISUpVDWQ8Z3IgT12IIhZZe"

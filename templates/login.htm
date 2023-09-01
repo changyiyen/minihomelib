@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>{{ ui_translations['login_title'][ui_lang] }}</title>
+		<style>
+			table {
+				margin: 0;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				-ms-transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%);
+			}
+		</style>
+	</head>
+	<body>
+		<h1 style="text-align: center;">{{ ui_translations['login_title'][ui_lang] }}</h1>
+		<noscript>{{ ui_translations['noscript'][ui_lang] }}</noscript>
+		<hr>
+		{% with messages = get_flashed_messages() -%}
+			{% if messages -%}
+			<ul id="indicator" style="background-color: lavender;">
+			{% for message in messages -%}
+				{% if message in ui_translations -%}
+				<li>{{ ui_translations[message][ui_lang] }}</li>
+				{% else %}
+				<li>{{ message }}</li>
+				{% endif -%}
+			{% endfor -%}
+			</ul>
+			{% endif -%}
+		{% endwith -%}
+		<hr>
+		<form method="POST" action="/login">
+			<table>
+				<tr>
+					<td><label for="username">{{ ui_translations['login_username'][ui_lang] }}:</label></td>
+					<td><input type="text" id="username" name="username" placeholder="User name"></td>
+				</tr>
+				<tr>
+					<td><label for="password">{{ ui_translations['login_password'][ui_lang] }}:</label></td>
+					<td><input type="password" id="password" name="password"></td>
+				</tr>
+				<tr>
+					<td><button type="submit">{{ ui_translations['login_submit'][ui_lang] }}</button></td>
+				</tr>
+			</table>
+		</form>
+		<p>{{ ui_translations['login_add_user_message'][ui_lang] | safe}}</p>
+	</body>
+</html>

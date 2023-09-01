@@ -2,11 +2,15 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>{{ ui_translations['title'][ui_lang] }}</title>
 		<style>
+			#isbn { font-size: 2vw; }
 			td { border: 1px solid; border-color: blue; padding: 5px; }
-			.table_header { cursor:pointer; }
+			.table_header { cursor: pointer; }
+			#upper_section {background-color: rgba(121,252,156,0.5);}
 		</style>
+		<script src= {{ url_for('static', filename='mark.es6.js') }}></script>
 		<script type="text/javascript">
 			function show_book_addition() {
 				document.getElementById("book_addition").removeAttribute("hidden");
@@ -45,20 +49,44 @@
 					book_table.appendChild(t[i]);
 				}
 			}
+			function librarysearch(colnum) {
+				var filter, table, rows, cell, i, textvalue;
+				filter = document.getElementById("librarysearchterm_" + String(colnum)).value.toUpperCase();
+				table = document.getElementById("book_table");
+				rows = table.getElementsByTagName("tr");
+
+				for (i=0; i<rows.length; i++) {
+					cell = rows[i].getElementsByTagName("td")[colnum];
+					if (cell) {
+						textvalue = cell.textContent || cell.innerText;
+						if (textvalue.toUpperCase().indexOf(filter) > -1) {
+							rows[i].style.display = "";
+						} else {
+							rows[i].style.display = "none";
+						}
+					}
+				}
+			}
 		</script>
 	</head>
 	<body>
-		<h1 style="text-align: center;">{{ ui_translations['title'][ui_lang] }}</h1>
-		<p style="text-align: right;">{{ ui_translations['page_generation_time_msg'][ui_lang] }}UTC {{ pagedate }}</p>
-		<form style="text-align: center;" method="POST" id="mainform">
-			<input type="text" placeholder="ISBN" id="isbn" name="isbn" autofocus>
-			<button type="button" id="show_add_book" name="show_add_book" onClick="show_book_addition();" title="{{ ui_translations['add_book_form_button_title'][ui_lang] }}">{{ ui_translations['add_book_form_button_label'][ui_lang] }}</button>
-			<!-- <input type="button" value="Check-out/Check-in" name="transact" onClick="transact();"> -->
-			<button type="submit" id="transact" name="transact" title="{{ ui_translations['checkin_checkout_button_title'][ui_lang] }}">{{ ui_translations['checkin_checkout_button_label'][ui_lang] }}</button>
-		</form>
-		<div style="text-align: right;">
-			<button onclick='window.location.href="stats"'>{{ ui_translations['stats_button_label'][ui_lang] }}</button>
-		</div>
+		<noscript>
+			{{ ui_translations['noscript'][ui_lang] }}
+		</noscript>
+		<div id="upper_section">    
+			<h1 id="page_title" style="text-align: center;">{{ ui_translations['title'][ui_lang] }}</h1>
+			<p style="text-align: right;">{{ ui_translations['page_generation_time_msg'][ui_lang] }}UTC {{ pagedate }}</p>
+			<p style="text-align: left;">{{ ui_translations['current_user'][ui_lang] }}: {{ current_login }} (<a href="logout">{{ ui_translations['log_out'][ui_lang] }}</a>)</p>
+			<form style="text-align: center;" method="POST" id="mainform">
+				<input type="text" placeholder="ISBN" id="isbn" name="isbn" autofocus>
+				<input type="hidden" id="current_user" name="current_user" value="{{ current_login }}">
+				<button type="button" id="show_add_book" name="show_add_book" onClick="show_book_addition();" title="{{ ui_translations['add_book_form_button_title'][ui_lang] }}">{{ ui_translations['add_book_form_button_label'][ui_lang] }}</button>
+				<!-- <input type="button" value="Check-out/Check-in" name="transact" onClick="transact();"> -->
+				<button type="submit" id="transact" name="transact" title="{{ ui_translations['checkin_checkout_button_title'][ui_lang] }}">{{ ui_translations['checkin_checkout_button_label'][ui_lang] }}</button>
+			</form>
+			<div style="text-align: right;">
+				<a href="/stats">{{ ui_translations['stats_label'][ui_lang] }}</a>
+			</div>
 			<form method="POST" action="/add" id="book_addition" hidden>
 				<table style="margin: auto; width: auto;">
 					<tr>
@@ -105,10 +133,7 @@
 						</td>
 						{% endif -%}
 					</tr>
-					<tr>
-						<td><label>{{ ui_translations['add_book_user_label'][ui_lang] }}</label></td>
-						<td><input type="text" value="username" name="username" id="username" autocomplete required></td>
-					</tr>
+					<input type="hidden" name="current_adding_user" id="current_adding_user" value="{{ current_login }}">
 					<input type="hidden" name="checkout_status" id="checkout_status" value="checked in">
 					<input type="hidden" name="transaction_date" id="transaction_date" value="[]">
 					<div style="text-align: center;">
@@ -117,11 +142,32 @@
 					</div>
 				</table>
 			</form>
+		</div>	
 		<hr>
-		<p id="indicator" style="background-color: lavender;">{{ status }}</p>
+		{% with messages = get_flashed_messages() -%}
+			{% if messages -%}
+			<ul id="indicator" style="background-color: lavender;">
+			{% for message in messages -%}
+				{% if message in ui_translations -%}
+				<li>{{ ui_translations[message][ui_lang] }}</li>
+				{% else %}
+				<li>{{ message }}</li>
+				{% endif -%}
+			{% endfor -%}
+			</ul>
+			{% endif -%}
+		{% endwith -%}
 		<hr>
+
+		<!-- New book recommendations-->
+		<h2 style="text-align: center;">{{ ui_translations['new_arrivals_header'][ui_lang] }}</h2>
+		<div id="new_arrivals_table_div" style="overflow-x: auto;">
+		</div>
+		<hr>
+
 		<h2 style="text-align: center;">{{ ui_translations['library_header'][ui_lang] }}</h2>
-		<table>
+		<div style="overflow-x: auto;">
+		<table style="width:100%">
 			<!-- Generate table of books -->
 			<thead>
 			<tr class="table_header">
@@ -137,10 +183,17 @@
 				<th onClick="colsort(9);">{{ ui_translations['book_table_location'][ui_lang] }}</th>
 				<th onClick="colsort(10);">{{ ui_translations['book_table_lendstatus'][ui_lang] }}</th>
 				<th onClick="colsort(11);">{{ ui_translations['book_table_lasttransaction'][ui_lang] }}</th>
+				<th onClick="colsort(12);">{{ ui_translations['book_table_cover'][ui_lang] }}</th>
+			</tr>
+			<!-- Search bar -->
+			<tr>
+				{% for i in range(12) -%}
+				<th><input type="text" name="librarysearchterm_{{ i }}" id="librarysearchterm_{{ i }}" onkeyup="librarysearch({{ i }});" placeholder="{{ ui_translations['searchbox_placeholder_label'][ui_lang] }}" /></th>
+				{% endfor -%}
 			</tr>
 			<thead>
 			<tbody id="book_table">
-			{% if lib %}
+			{% if lib -%}
 			{% for ISBN in lib -%}
 			<tr class="book_row">
 				<td>{{ ISBN }}</td>
@@ -153,32 +206,56 @@
 				<td>{{ lib[ISBN]['ACQUISITION_DATE'] }}</td>
 				<td>{{ lib[ISBN]['ACQUISITION_LOCATION'] }}</td>
 				<td style="color:blue">{{ lib[ISBN]['HOME_SHELF'] }}</td>
-				{% if lib[ISBN]['BOOK_STATUS'] == 'checked out' %}
+				{% if lib[ISBN]['BOOK_STATUS'] == 'checked out' -%}
 				<td style="color:red; font-weight: bold;">{{ ui_translations['book_table_checkedout'][ui_lang] }}</td>
-				{% elif lib[ISBN]['BOOK_STATUS'] == 'checked in' %}
+				{% elif lib[ISBN]['BOOK_STATUS'] == 'checked in' -%}
 				<td style="color:green; font-weight: bold;">{{ ui_translations['book_table_checkedin'][ui_lang] }}</td>
-			    {% else %}
+			    {% else -%}
 				<td> {{ lib[ISBN]['BOOK_STATUS'] }} </td>
-				{% endif %}
-				<td>{{ lib[ISBN]['LAST_TRANSACTION'] }}</td>
+				{% endif -%}
+				<td>{{ lib[ISBN]['LAST_TRANSACTION'] }} ({{ lib[ISBN]['TRANSACTIONS'][-1]['USERNAME'] }})</td>
+				<td><img src= {{ url_for('static', filename='covers/{}-M.jpg'.format(ISBN)) }}></td>
 			</tr>
 			{% endfor -%}
-			{% endif %}
+			{% endif -%}
 			</tbody>
 		</table>
+		</div>
 		<script type="text/javascript">
 			var currentdate = new Date();
-			var bookrows = document.getElementsByClassName("book_row");
+			var bookrows = document.getElementsByClassName('book_row');
 			for (i=0; i < bookrows.length; i++) {
 				// 1000*60*60*24=86400000
 				if (
 					(bookrows[i].cells[10].innerText == "{{ ui_translations['book_table_checkedout'][ui_lang] }}")
 					&&
-					((currentdate.getTime() - (Date.parse(bookrows[i].cells[11].innerText))) / 86400000 > {{ past_due }} )
+					// ISO 8601 time is 18 characters long; string is 0-indexed and substring function takes substring up *until* (excluding) 2nd arg (hence 19)
+					((currentdate.getTime() - (Date.parse(bookrows[i].cells[11].innerText.substring(0, 19)))) / 86400000 > {{ past_due }} )
 					) {
-						alert("Book '" + bookrows[i].cells[1].innerText + "' checked out for over {{ past_due }} days");
+						alert("{{ ui_translations['past_due_openquote'][ui_lang] }}" + bookrows[i].cells[1].innerText + "{{ ui_translations['past_due_closequote'][ui_lang] }}" + "{{ ui_translations['past_due_main'][ui_lang] }}" + "{{ past_due }}" +"{{ ui_translations['past_due_end_days'][ui_lang] }}");
 				}
 			}
+		</script>
+		<script type="text/javascript">
+			var currentdate = new Date();
+			var bookrows = document.getElementsByClassName('book_row');
+			var new_arrivals_table_div = document.getElementById('new_arrivals_table_div');
+			const new_arrivals_table = document.createElement('table');
+			const new_arrivals_table_row = new_arrivals_table.insertRow();
+
+			for (i=0; i < bookrows.length; i++) {
+				// 1000*60*60*24=86400000
+				if (
+					(currentdate.getTime() - (Date.parse(bookrows[i].cells[7].innerText))) / 86400000 <= {{ new_arrival }}
+					) {
+					var imgnode = document.createElement('img');
+					imgnode.setAttribute('src', 'static/' + 'covers/' + bookrows[i].cells[0].innerText + '-' + '{{ cover_size }}' + '.jpg');
+					imgnode.setAttribute('alt', bookrows[i].cells[1].innerText);
+					var cell = new_arrivals_table_row.insertCell();
+					cell.appendChild(imgnode);
+				}
+			}
+			new_arrivals_table_div.appendChild(new_arrivals_table);
 		</script>
 	</body>
 </html>

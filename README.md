@@ -34,8 +34,17 @@ $ python3 minihomelib.py
 
 ## Screenshots
 
-![Screenshot with example library](/screenshots/20221109.png)
+![Screenshot with example library](/screenshots/20230901_main_zh-TW.png)
+![Screenshot of login page](/screenshots/20230901_login_zh-TW.png)
+![Screenshot of user registration page](/screenshots/20230901_adduser_zh-TW.png)
 
 ## License
 
 minihomelib is placed under the coffeeware license, itself a lightly modified beerware license.
+
+## Current feature requests
+- Add more stats (per user, etc)
+- Interface aesthetics:
+	- highlight terms matching search
+- Dynamically generate data pages for each book
+- Build as Docker image

@@ -5,14 +5,19 @@
 library_db = "library_example.sqlite"
 
 # ISBN processing with isbnlib
-## Validate ISBN
-#isbnlib_validate = true
 ## Automatically fetch ISBN metadata
 isbnlib_fetch_meta = true
 
-# Alerts
+# Fetch covers from OpenLibrary
+openlibrary_fetch_cover = true
+# Book cover size to fetch (one of "L", "M" or "S")
+openlibrary_cover_size = "M"
+
+# Alerts and notifications
 ## Past due alert duration (in days)
 past_due = 30
+## New book arrivals (in days)
+new_arrival = 30
 
 # Shelf management
 ## Default shelves
