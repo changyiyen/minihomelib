@@ -1,0 +1,44 @@
+/* Text alignments */
+#page_title { text-align: center; }
+#page_gen_time { text-align: right; }
+#current_user { text-align: left; }
+#mainform { text-align: center; }
+#stats_link { text-align: right; }
+#add_book_table { margin: auto; width: auto; }
+
+h2 { text-align: center; }
+
+/* ISBN entry field text size */
+#isbn { font-size: 2vw; }
+
+/* Section colors*/
+#upper_section { background-color: rgba(121,252,156,0.5); }
+#indicator { background-color: lavender; }
+
+/* Use pointer cursor on header tables to indicate sortability */
+.table_header { cursor: pointer; }
+
+/* !!!!!     Try to make the table of books look nice (testing)     !!!!! */
+table {
+    width: 100%;
+}
+
+/*  Turns out the table overflow issues were due to the filter text boxes being too wide.
+    Here we set a column filter width less than 100%, because at 95% or so and above the
+    text boxes can get skewed out of alignment with the rows beneath.
+    This can probably be fixed by fiddling with the column widths, but I haven't tried.
+ */
+.colfilter { width: 90% }
+
+td {
+    border: 1px solid;
+    border-color: blue;
+    padding: 5px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}

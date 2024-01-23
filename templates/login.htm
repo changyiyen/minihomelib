@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>{{ ui_translations['login_title'][ui_lang] }}</title>
+		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }}>
 		<style>
 			table {
 				margin: 0;
@@ -15,12 +16,12 @@
 		</style>
 	</head>
 	<body>
-		<h1 style="text-align: center;">{{ ui_translations['login_title'][ui_lang] }}</h1>
+		<h1 id="page_title">{{ ui_translations['login_title'][ui_lang] }}</h1>
 		<noscript>{{ ui_translations['noscript'][ui_lang] }}</noscript>
 		<hr>
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
-			<ul id="indicator" style="background-color: lavender;">
+			<ul id="indicator">
 			{% for message in messages -%}
 				{% if message in ui_translations -%}
 				<li>{{ ui_translations[message][ui_lang] }}</li>

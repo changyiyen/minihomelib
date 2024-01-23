@@ -42,6 +42,18 @@
   "en" = "Stats"
   "zh-TW" = "統計"
 
+[export_library_label]
+  "en" = "Export library"
+  "zh-TW" = "匯出書庫內容"
+
+[export_transactions_label]
+  "en" = "Export transactions"
+  "zh-TW" = "匯出借還記錄"
+
+[export_status_label]
+  "en" = "Export book status"
+  "zh-TW" = "匯出圖書狀態"
+
 [add_book_bookname_label]
   "en" = "Book name: "
   "zh-TW" = "書名: "

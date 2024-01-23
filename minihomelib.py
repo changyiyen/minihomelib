@@ -4,8 +4,7 @@
 
 ### Import required libs ###
 
-# Prerequisites: flask, flask_login, passlib, bcrypt (pip3 install Flask flask-login passlib)
-# (NB.: bcrypt is not directly imported here, but is suggested as a dependency of passlib.hash.bcrypt)
+# Prerequisites: flask, flask_login, passlib, bcrypt (pip3 install Flask flask-login passlib bcrypt)
 # NB.: Also note that a TOML library is needed further down for creation of new accounts
 # (pip install toml) 
 import flask
@@ -20,6 +19,7 @@ except ImportError:
     ISBNlib_imported = False
 
 # Built-ins
+import csv
 import datetime
 import json
 import sqlite3
@@ -370,6 +370,39 @@ def stats():
         transaction_counts=transaction_counts,
         longest_checkout=longest_checkout,
         transaction_counts_plotJSON=transaction_counts_plotJSON)
+
+@app.route('/exportlibrary', methods=['GET'])
+def exportlibrary():
+    '''
+    Export library to CSV file.
+    '''
+    if flask.request.method == 'GET':
+        with open('exports/exportlibrary.csv', 'w') as csvfile:
+            csv.writer(csvfile, lineterminator = '\n').writerow(["ISBN", "BOOKNAME", "AUTHORS", "LANGUAGE", "PUBLISHER", "PUBLICATION_YEAR", "GENRES", "ACQUISITION_DATE", "ACQUISITION_LOCATION", "HOME_SHELF"])
+            csv.writer(csvfile, lineterminator = '\n').writerows(item_data)
+        return flask.send_from_directory('exports', 'exportlibrary.csv', as_attachment=True)
+
+@app.route('/exporttransactions', methods=['GET'])
+def exporttransactions():
+    '''
+    Export transactions to CSV file.
+    '''
+    if flask.request.method == 'GET':
+        with open('exports/exporttransactions.csv', 'w') as csvfile:
+            csv.writer(csvfile, lineterminator = '\n').writerow(["ISBN", "TRANSACTION_TYPE", "TRANSACTION_DATE", "USERNAME"])
+            csv.writer(csvfile, lineterminator = '\n').writerows(transaction_data)
+        return flask.send_from_directory('exports', 'exporttransactions.csv', as_attachment=True)
+
+@app.route('/exportstatus', methods=['GET'])
+def exportstatus():
+    '''
+    Export status of books to CSV file.
+    '''
+    if flask.request.method == 'GET':
+        with open('exports/exportstatus.csv', 'w') as csvfile:
+            csv.writer(csvfile, lineterminator = '\n').writerow(["ISBN", "BOOK_STATUS", "LAST_TRANSACTION"])
+            csv.writer(csvfile, lineterminator = '\n').writerows(book_status)
+        return flask.send_from_directory('exports', 'exportstatus.csv', as_attachment=True)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

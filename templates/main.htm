@@ -4,12 +4,7 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>{{ ui_translations['title'][ui_lang] }}</title>
-		<style>
-			#isbn { font-size: 2vw; }
-			td { border: 1px solid; border-color: blue; padding: 5px; }
-			.table_header { cursor: pointer; }
-			#upper_section {background-color: rgba(121,252,156,0.5);}
-		</style>
+		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }}>
 		<script src= {{ url_for('static', filename='mark.es6.js') }}></script>
 		<script type="text/javascript">
 			function show_book_addition() {
@@ -74,21 +69,26 @@
 			{{ ui_translations['noscript'][ui_lang] }}
 		</noscript>
 		<div id="upper_section">    
-			<h1 id="page_title" style="text-align: center;">{{ ui_translations['title'][ui_lang] }}</h1>
-			<p style="text-align: right;">{{ ui_translations['page_generation_time_msg'][ui_lang] }}UTC {{ pagedate }}</p>
-			<p style="text-align: left;">{{ ui_translations['current_user'][ui_lang] }}: {{ current_login }} (<a href="logout">{{ ui_translations['log_out'][ui_lang] }}</a>)</p>
-			<form style="text-align: center;" method="POST" id="mainform">
+			<h1 id="page_title">{{ ui_translations['title'][ui_lang] }}</h1>
+			<p id="page_gen_time">{{ ui_translations['page_generation_time_msg'][ui_lang] }} UTC {{ pagedate }}</p>
+			<p id="current_user">{{ ui_translations['current_user'][ui_lang] }}: {{ current_login }} (<a href="logout">{{ ui_translations['log_out'][ui_lang] }}</a>)</p>
+			<form method="POST" id="mainform">
 				<input type="text" placeholder="ISBN" id="isbn" name="isbn" autofocus>
 				<input type="hidden" id="current_user" name="current_user" value="{{ current_login }}">
 				<button type="button" id="show_add_book" name="show_add_book" onClick="show_book_addition();" title="{{ ui_translations['add_book_form_button_title'][ui_lang] }}">{{ ui_translations['add_book_form_button_label'][ui_lang] }}</button>
 				<!-- <input type="button" value="Check-out/Check-in" name="transact" onClick="transact();"> -->
 				<button type="submit" id="transact" name="transact" title="{{ ui_translations['checkin_checkout_button_title'][ui_lang] }}">{{ ui_translations['checkin_checkout_button_label'][ui_lang] }}</button>
 			</form>
-			<div style="text-align: right;">
+			<div id="stats_link">
 				<a href="/stats">{{ ui_translations['stats_label'][ui_lang] }}</a>
 			</div>
+			<div id="export_links">
+				<a href="/exportlibrary">{{ ui_translations['export_library_label'][ui_lang] }}</a>
+				<a href="/exporttransactions">{{ ui_translations['export_transactions_label'][ui_lang] }}</a>
+				<a href="/exportstatus">{{ ui_translations['export_status_label'][ui_lang] }}</a>
+			</div>
 			<form method="POST" action="/add" id="book_addition" hidden>
-				<table style="margin: auto; width: auto;">
+				<table id="add_book_table">
 					<tr>
 						<td><label>ISBN: </label></td>
 						<td><input type="text" size="15" placeholder="ISBN" name="isbn_new" id="isbn_new" required autofocus></td>
@@ -146,7 +146,7 @@
 		<hr>
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
-			<ul id="indicator" style="background-color: lavender;">
+			<ul id="indicator">
 			{% for message in messages -%}
 				{% if message in ui_translations -%}
 				<li>{{ ui_translations[message][ui_lang] }}</li>
@@ -160,14 +160,14 @@
 		<hr>
 
 		<!-- New book recommendations-->
-		<h2 style="text-align: center;">{{ ui_translations['new_arrivals_header'][ui_lang] }}</h2>
+		<h2>{{ ui_translations['new_arrivals_header'][ui_lang] }}</h2>
 		<div id="new_arrivals_table_div" style="overflow-x: auto;">
 		</div>
 		<hr>
 
-		<h2 style="text-align: center;">{{ ui_translations['library_header'][ui_lang] }}</h2>
+		<h2>{{ ui_translations['library_header'][ui_lang] }}</h2>
 		<div style="overflow-x: auto;">
-		<table style="width:100%">
+		<table>
 			<!-- Generate table of books -->
 			<thead>
 			<tr class="table_header">
@@ -188,7 +188,7 @@
 			<!-- Search bar -->
 			<tr>
 				{% for i in range(12) -%}
-				<th><input type="text" name="librarysearchterm_{{ i }}" id="librarysearchterm_{{ i }}" onkeyup="librarysearch({{ i }});" placeholder="{{ ui_translations['searchbox_placeholder_label'][ui_lang] }}" /></th>
+				<th><input type="text" name="librarysearchterm_{{ i }}" id="librarysearchterm_{{ i }}" class="colfilter" onkeyup="librarysearch({{ i }});" placeholder="{{ ui_translations['searchbox_placeholder_label'][ui_lang] }}" /></th>
 				{% endfor -%}
 			</tr>
 			<thead>
