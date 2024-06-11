@@ -8,11 +8,26 @@
 	</head>
 	<body>
 		<h1 class="page_header">{{ ui_translations['login_title'][ui_lang] }}</h1>
+		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }}>
+		<style>
+			table {
+				margin: 0;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				-ms-transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%);
+			}
+		</style>
+	</head>
+	<body>
+		<h1 id="page_title">{{ ui_translations['login_title'][ui_lang] }}</h1>
 		<noscript>{{ ui_translations['noscript'][ui_lang] }}</noscript>
 		<hr>
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
 			<ul id="indicator" class="indicator">
+			<ul id="indicator">
 			{% for message in messages -%}
 				{% if message in ui_translations -%}
 				<li>{{ ui_translations[message][ui_lang] }}</li>

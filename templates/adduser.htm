@@ -5,14 +5,26 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{{ ui_translations['adduser_title'][ui_lang] }}</title>
 		<link rel="stylesheet" href={{ url_for('static', filename='styles.css') }}>
+		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }}>
+		<style>
+			table {
+				margin: 0;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				-ms-transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%);
+			}
+		</style>
 	</head>
 	<body>
 	    <noscript>{{ ui_translations['noscript'][ui_lang] }}</noscript>
-		<h1 style="text-align: center;">{{ ui_translations['adduser_title'][ui_lang] }}</h1>
+		<h1 id="page_title">{{ ui_translations['adduser_title'][ui_lang] }}</h1>
 		<hr>
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
 			<ul id="indicator" class="indicator">
+			<ul id="indicator">
 			{% for message in messages -%}
 				{% if message in ui_translations -%}
 				<li>{{ ui_translations[message][ui_lang] }}</li>
