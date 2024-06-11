@@ -1,0 +1,34 @@
+/* Main user interface */
+
+.page_header {
+	text-align: center;
+}
+
+.current_user {
+	text-align: left;
+}
+
+.page_generation_time {
+	text-align: right;
+}
+
+.indicator {
+	background-color: lavender;
+}
+
+.interaction_table {
+	margin: 0;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+}
+
+/* Fonts */
+@font-face {
+  font-family: "EB Garamond";
+  src:
+    local("EB Garamond"),
+    url("typefaces/EBGaramond-Regular.woff2") format("woff");
+}

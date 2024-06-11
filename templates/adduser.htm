@@ -2,17 +2,9 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{{ ui_translations['adduser_title'][ui_lang] }}</title>
-		<style>
-			table {
-				margin: 0;
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				-ms-transform: translate(-50%, -50%);
-				transform: translate(-50%, -50%);
-			}
-		</style>
+		<link rel="stylesheet" href={{ url_for('static', filename='styles.css') }}>
 	</head>
 	<body>
 	    <noscript>{{ ui_translations['noscript'][ui_lang] }}</noscript>
@@ -20,7 +12,7 @@
 		<hr>
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
-			<ul id="indicator" style="background-color: lavender;">
+			<ul id="indicator" class="indicator">
 			{% for message in messages -%}
 				{% if message in ui_translations -%}
 				<li>{{ ui_translations[message][ui_lang] }}</li>
@@ -33,7 +25,7 @@
 		{% endwith -%}
 		<hr>
 		<form method="POST" action="/adduser">
-			<table>
+			<table class="interaction_table">
 				<tr>
 					<td><label for="username">{{ ui_translations['adduser_username'][ui_lang] }}:</label></td>
 					<td><input type="text" id="username" name="username" placeholder="User name"></td>

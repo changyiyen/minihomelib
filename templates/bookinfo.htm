@@ -2,24 +2,16 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<title>Information for {{bookname}}</title>
-		<style>
-			table {
-				margin: 0;
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				-ms-transform: translate(-50%, -50%);
-				transform: translate(-50%, -50%);
-			}
-		</style>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{{ bookname }}</title>
+		<link rel="stylesheet" href={{ url_for('static', filename='styles.css') }}>
 	</head>
 	<body>
-		<h1 style="text-align: center;">Information for {{bookname}}</h1>
+		<h1 class="page_header">{{ bookname }}</h1>
 		<hr>
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
-			<ul id="indicator" style="background-color: lavender;">
+			<ul id="indicator" class="indicator">
 			{% for message in messages -%}
 				{% if message in ui_translations -%}
 				<li>{{ ui_translations[message][ui_lang] }}</li>
@@ -34,6 +26,8 @@
 		<!-- Dynamically generated book info goes here -->
 		<table>
 			<thead>
+				<tr>
+				</tr>
 			</thead>
 			<tbody>
 			</tbody>

@@ -167,7 +167,7 @@ def main():
                 )               
                 con.commit()
                 con.close()
-                flask.flash("Book '{}' checked out!".format(lib[flask.request.form.get('isbn')]['BOOKNAME']))
+                flask.flash(ui_translations['Icheckout'][flask.request.accept_languages.best_match(supported_languages)].format(lib[flask.request.form.get('isbn')]['BOOKNAME']))
                 return flask.redirect('/')
             # Checkin
             if lib[flask.request.form.get('isbn')]['BOOK_STATUS'] == 'checked out':
@@ -193,7 +193,8 @@ def main():
                 )
                 con.commit()
                 con.close()
-                flask.flash("Book '{}' checked in!".format(lib[flask.request.form.get('isbn')]['BOOKNAME']))
+
+                flask.flash(ui_translations['Icheckin'][flask.request.accept_languages.best_match(supported_languages)].format(lib[flask.request.form.get('isbn')]['BOOKNAME']))
                 return flask.redirect('/')
         else:
             flask.flash("EmissingISBN")
@@ -259,7 +260,7 @@ def add():
             raise ValueError("Book cover size argument incorrectly set")
         with urllib.request.urlopen('https://covers.openlibrary.org/b/isbn/{}-{}.jpg'.format(isbn, conf['openlibrary_cover_size'])) as response:
             cover = response.read()
-        with open('static/covers/{}-M.jpg'.format(isbn), 'wb') as imagefile:
+        with open('static/covers/{}-{}.jpg'.format(isbn, conf['openlibrary_cover_size']), 'wb') as imagefile:
             imagefile.write(cover)
             imagefile.close()
     
@@ -299,18 +300,23 @@ def add():
     con.commit()    
     con.close()
 
-    flask.flash("Book '{}' added!".format(bookname))
+    flask.flash(ui_translations['Iaddbook'][flask.request.accept_languages.best_match(supported_languages)].format(lib[flask.request.form.get('isbn')]['BOOKNAME']))
     return flask.redirect('/')
 
 @app.route('/book/<isbn>')
 @flask_login.login_required
-def bookinfo():
+def bookinfo(isbn=""):
     # TODO: finish templates for book info (maybe add mechanism for comments)
     global lib
     '''
     Render info page for each book.
     '''
-    return flask.redirect('/')
+    if flask.request.method == 'GET':
+        return flask.render_template('bookinfo.htm',
+            ui_translations=ui_translations,
+            ui_lang=flask.request.accept_languages.best_match(supported_languages),
+            pagedate=datetime.datetime.today().isoformat('T', 'seconds'),
+            cover_size=conf['openlibrary_cover_size'])
 
 @app.route('/stats', methods=['GET'])
 def stats():
@@ -318,46 +324,73 @@ def stats():
     Generates stats and charts from reader data.
     '''
     global lib
-    # This function is supposed to *only* read data to calculate stats, so
-    # we're reading from the internal representation;
-    # *take care not to modify the internal representation!*
-
-    ## Get books with highest number of transactions (checkin + checkout)
-    transaction_counts = list([0,list()])
     
-    for isbn in lib:
-        transactions = len(lib[isbn]['TRANSACTIONS'])
-        if transactions > transaction_counts[0]:
-            transaction_counts[0] = transactions
-            transaction_counts[1] = [lib[isbn]['BOOKNAME']]
-        elif transactions == transaction_counts[0]:
-            transaction_counts[1].append(lib[isbn]['BOOKNAME'])
-        
+    # [TODO] migrate to reading from SQL
+
+    con = sqlite3.connect(conf["library_db"])
+    cur = con.cursor()
+    all_users = cur.execute("SELECT DISTINCT user_name FROM transactions;").fetchall()
+    all_books = cur.execute("SELECT DISTINCT ISBN, book_name FROM item_info;").fetchall()
+    all_checkins = cur.execute("SELECT ISBN, book_name, transaction_date AS checkin_date FROM transactions NATURAL JOIN item_info WHERE transaction_type='check in' ORDER BY transaction_date ASC;").fetchall() 
+    all_checkouts = cur.execute("SELECT ISBN, user_name, transaction_date FROM transactions NATURAL JOIN item_info WHERE transaction_type='check out' ORDER BY transaction_date ASC;").fetchall()
+    books_by_transactions = cur.execute("SELECT book_name, COUNT(transaction_type) AS transaction_count FROM transactions NATURAL JOIN item_info GROUP BY ISBN ORDER BY COUNT(transaction_type) DESC;").fetchall()
+    books_by_checkouts = cur.execute("SELECT book_name, COUNT(transaction_type) AS checkout_count FROM transactions NATURAL JOIN item_info WHERE transaction_type='check out' GROUP BY ISBN ORDER BY COUNT(transaction_type) DESC;").fetchall()
+    users_by_transactions = cur.execute("SELECT user_name, COUNT(transaction_type) AS transactions FROM transactions GROUP BY user_name ORDER BY COUNT(transaction_type) DESC;").fetchall()
+    users_by_checkouts = cur.execute("SELECT user_name, COUNT(transaction_type) AS checkouts FROM transactions WHERE transaction_type='check out' GROUP BY user_name ORDER BY COUNT(transaction_type) DESC;").fetchall()
+    users_by_genre_transactions = cur.execute("SELECT user_name, genres, COUNT(transaction_type) AS checkouts FROM transactions NATURAL JOIN item_info GROUP BY user_name, genres ORDER BY COUNT(transaction_type) DESC;").fetchall()
+    users_by_genre_checkouts = cur.execute("SELECT user_name, genres, COUNT(transaction_type) AS checkouts FROM transactions NATURAL JOIN item_info WHERE transaction_type = 'check out' GROUP BY user_name, genres ORDER BY COUNT(transaction_type) DESC;").fetchall()
+    con.close()
+
+    ## Checkout session length for each user
+    session_lengths = dict()
+    for (user,) in all_users:
+        session_lengths[user] = list()
     ## Get book with longest known checkout time
     longest_checkout = list([datetime.timedelta(), ''])
-    for isbn in lib:
-        sessions = list(zip(
-            [transaction['TRANSACTION_DATE'] for transaction in lib[isbn]['TRANSACTIONS'] if transaction['TRANSACTION_TYPE'] == 'check in'],
-            [transaction['TRANSACTION_DATE'] for transaction in lib[isbn]['TRANSACTIONS'] if transaction['TRANSACTION_TYPE'] == 'check out']
-        ))
-        for session in sessions:
-            delta = datetime.datetime.strptime(session[1], '%Y-%m-%dT%H:%M:%S') - datetime.datetime.strptime(session[0], '%Y-%m-%dT%H:%M:%S')
-            if delta > longest_checkout[0]:
-                longest_checkout[0] = delta
-                # Unlikely that two real transactions would be exactly the same length, down to the second
-                longest_checkout[1] = lib[isbn]['BOOKNAME']
 
-    ## Build data for bar plot of bookname/transaction counts
-    transaction_counts_plotdata = {
-        'x': list([lib[isbn]['BOOKNAME'] for isbn in lib]),
-        'y': list([len(lib[isbn]['TRANSACTIONS']) for isbn in lib]),
+    for (isbn, book_name) in all_books:
+        if isbn in [x[0] for x in all_checkouts]:
+            sessions = list(zip(
+                [x[2] for x in all_checkouts if isbn == x[0]],
+                # We remove the first checkin because it's the initial storage
+                [x[2] for x in all_checkins if isbn == x[0]][1:],
+                # User checking out book defined as borrower
+                [x[1] for x in all_checkouts if isbn == x[0]]
+            ))
+            for session in sessions:
+                delta = datetime.datetime.strptime(session[1], '%Y-%m-%dT%H:%M:%S') - datetime.datetime.strptime(session[0], '%Y-%m-%dT%H:%M:%S')
+                session_lengths[session[2]].append(delta)
+                if delta > longest_checkout[0]:
+                    longest_checkout[0] = delta
+                    # Unlikely that two real transactions would be exactly the same length, down to the second; otherwise the book with the lower ISBN wins
+                    longest_checkout[1] = book_name
+
+    ## barplot: book name / total transaction count
+    books_by_transactions_plotdata = {
+        'x': list([i[0] for i in books_by_transactions]),
+        'y': list([i[1] for i in books_by_transactions]),
         'type': 'bar'
     }
+    books_by_transactions_plotJSON = json.dumps(books_by_transactions_plotdata)
+    
+    ## barplot: book name / checkout count
+    books_by_checkouts_plotdata = {
+        'x': list([i[0] for i in books_by_checkouts]),
+        'y': list([i[1] for i in books_by_checkouts]),
+        'type': 'bar'
+    }
+    books_by_checkouts_plotJSON = json.dumps(books_by_checkouts_plotdata)
+    
+    ## barplot: username / total transaction count
+    users_by_transactions_plotdata = {
+        'x': list([i[0] for i in users_by_transactions]),
+        'y': list([i[1] for i in users_by_transactions]),
+        'type': 'bar'
+    }
+    users_by_transactions_plotJSON = json.dumps(users_by_transactions_plotdata)
 
-    transaction_counts_plotJSON = json.dumps(transaction_counts_plotdata)
-    print(transaction_counts_plotJSON)
     # Generate graphs
-    ## barplot: book name / total transaction count
+
     ## barplot: book name / checkout intervals
     ## barplot: genre / total transaction count
     ## barplot: genre / transaction count for last month
@@ -367,9 +400,13 @@ def stats():
         ui_translations=ui_translations,
         ui_lang=flask.request.accept_languages.best_match(supported_languages),
         pagedate=datetime.datetime.today().isoformat('T', 'seconds'),
-        transaction_counts=transaction_counts,
+        books_by_transactions=books_by_transactions,
+        books_by_checkouts=books_by_checkouts,
         longest_checkout=longest_checkout,
-        transaction_counts_plotJSON=transaction_counts_plotJSON)
+        books_by_transactions_plotJSON=books_by_transactions_plotJSON,
+        books_by_checkouts_plotJSON=books_by_checkouts_plotJSON,
+        users_by_transactions_plotJSON=users_by_transactions_plotJSON
+        )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -432,6 +469,13 @@ def logout():
     flask_login.logout_user()
     flask.flash("Iloggedout")
     return flask.redirect('/')
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return flask.render_template('404.htm',
+        ui_translations=ui_translations,
+        ui_lang=flask.request.accept_languages.best_match(supported_languages)
+    ), 404
 
 if __name__ == '__main__':
     app.run(debug=True)

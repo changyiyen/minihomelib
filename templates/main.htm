@@ -2,15 +2,15 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{{ ui_translations['title'][ui_lang] }}</title>
+		<link rel="stylesheet" href={{ url_for('static', filename='styles.css') }}>
 		<style>
-			#isbn { font-size: 2vw; }
+			.isbn { font-size: 2vw; }
 			td { border: 1px solid; border-color: blue; padding: 5px; }
 			.table_header { cursor: pointer; }
-			#upper_section {background-color: rgba(121,252,156,0.5);}
+			.upper_section {background-color: rgba(121,252,156,0.5);}
 		</style>
-		<script src= {{ url_for('static', filename='mark.es6.js') }}></script>
 		<script type="text/javascript">
 			function show_book_addition() {
 				document.getElementById("book_addition").removeAttribute("hidden");
@@ -36,18 +36,17 @@
 			//    }).then(response => response.json()).then(text => p.innerText=text);
 			//}
 			function colsort(n) {
-				// Load table into array
+				// Load table into temporary array
 				var book_table = document.getElementById("book_table");
 				var t = Array();
 				for (i=0; i < book_table.children.length; i++) {
 					t.push(book_table.children[i]);
 				}
 				t = t.sort(function(a, b){return a.cells[n].innerText > b.cells[n].innerText;});
-				// Write contents of t to original table;
+				// Write contents of temporary array to original table;
 				// works on Firefox but not on Edge for some reason
-				for (i=0; i < book_table.children.length; i++) {
-					book_table.appendChild(t[i]);
-				}
+				// (neither replaceChildren() nor innerHTML='' works on Edge)
+				book_table.replaceChildren(...t);
 			}
 			function librarysearch(colnum) {
 				var filter, table, rows, cell, i, textvalue;
@@ -75,10 +74,10 @@
 		</noscript>
 		<div id="upper_section">    
 			<h1 id="page_title" style="text-align: center;">{{ ui_translations['title'][ui_lang] }}</h1>
-			<p style="text-align: right;">{{ ui_translations['page_generation_time_msg'][ui_lang] }}UTC {{ pagedate }}</p>
-			<p style="text-align: left;">{{ ui_translations['current_user'][ui_lang] }}: {{ current_login }} (<a href="logout">{{ ui_translations['log_out'][ui_lang] }}</a>)</p>
+			<p class="page_generation_time">{{ ui_translations['page_generation_time_msg'][ui_lang] }}UTC {{ pagedate }}</p>
+			<p class="current_user">{{ ui_translations['current_user'][ui_lang] }}: {{ current_login }} (<a href="logout">{{ ui_translations['log_out'][ui_lang] }}</a>)</p>
 			<form style="text-align: center;" method="POST" id="mainform">
-				<input type="text" placeholder="ISBN" id="isbn" name="isbn" autofocus>
+				<input type="text" placeholder="ISBN" id="isbn" class="isbn" name="isbn" autofocus>
 				<input type="hidden" id="current_user" name="current_user" value="{{ current_login }}">
 				<button type="button" id="show_add_book" name="show_add_book" onClick="show_book_addition();" title="{{ ui_translations['add_book_form_button_title'][ui_lang] }}">{{ ui_translations['add_book_form_button_label'][ui_lang] }}</button>
 				<!-- <input type="button" value="Check-out/Check-in" name="transact" onClick="transact();"> -->
@@ -146,7 +145,7 @@
 		<hr>
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
-			<ul id="indicator" style="background-color: lavender;">
+			<ul id="indicator" class="indicator">
 			{% for message in messages -%}
 				{% if message in ui_translations -%}
 				<li>{{ ui_translations[message][ui_lang] }}</li>
@@ -163,11 +162,16 @@
 		<h2 style="text-align: center;">{{ ui_translations['new_arrivals_header'][ui_lang] }}</h2>
 		<div id="new_arrivals_table_div" style="overflow-x: auto;">
 		</div>
-		<hr>
 
+		<hr>
+		
 		<h2 style="text-align: center;">{{ ui_translations['library_header'][ui_lang] }}</h2>
+		<form style="text-align: center;" id="searchoptform">
+			<input></input>
+		</form>
+
 		<div style="overflow-x: auto;">
-		<table style="width:100%">
+		<table style="width:100%; font-family: 'EB Garamond'">
 			<!-- Generate table of books -->
 			<thead>
 			<tr class="table_header">
@@ -185,7 +189,7 @@
 				<th onClick="colsort(11);">{{ ui_translations['book_table_lasttransaction'][ui_lang] }}</th>
 				<th onClick="colsort(12);">{{ ui_translations['book_table_cover'][ui_lang] }}</th>
 			</tr>
-			<!-- Search bar -->
+			<!-- Search bars -->
 			<tr>
 				{% for i in range(12) -%}
 				<th><input type="text" name="librarysearchterm_{{ i }}" id="librarysearchterm_{{ i }}" onkeyup="librarysearch({{ i }});" placeholder="{{ ui_translations['searchbox_placeholder_label'][ui_lang] }}" /></th>
@@ -214,7 +218,7 @@
 				<td> {{ lib[ISBN]['BOOK_STATUS'] }} </td>
 				{% endif -%}
 				<td>{{ lib[ISBN]['LAST_TRANSACTION'] }} ({{ lib[ISBN]['TRANSACTIONS'][-1]['USERNAME'] }})</td>
-				<td><img src= {{ url_for('static', filename='covers/{}-M.jpg'.format(ISBN)) }}></td>
+				<td><img src= {{ url_for('static', filename='covers/{}-{}.jpg'.format(ISBN, cover_size)) }}></td>
 			</tr>
 			{% endfor -%}
 			{% endif -%}
@@ -241,6 +245,7 @@
 			var bookrows = document.getElementsByClassName('book_row');
 			var new_arrivals_table_div = document.getElementById('new_arrivals_table_div');
 			const new_arrivals_table = document.createElement('table');
+			new_arrivals_table.setAttribute("style","margin: auto;");
 			const new_arrivals_table_row = new_arrivals_table.insertRow();
 
 			for (i=0; i < bookrows.length; i++) {

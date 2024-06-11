@@ -2,7 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{ ui_translations['stats_title'][ui_lang] }}</title>
+		<link rel="stylesheet" href={{ url_for('static', filename='styles.css') }}>
         <style>
             td { border: 1px solid; border-color: blue; padding: 5px;}
         </style>
@@ -10,10 +12,10 @@
 		</script>
     </head>
     <body>
-        <h1 style="text-align: center;">{{ ui_translations['stats_title'][ui_lang] }}</h1>
-        <p style="text-align: right;">{{ ui_translations['page_generation_time_msg'][ui_lang] }}{{ pagedate }}</p>
+        <h1 class="page_header">{{ ui_translations['stats_title'][ui_lang] }}</h1>
+        <p class="page_generation_time">{{ ui_translations['page_generation_time_msg'][ui_lang] }}{{ pagedate }}</p>
         <hr>
-        <p id="indicator" style="background-color: lavender;">
+        <p id="indicator" class="indicator">
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
 			<ul id="indicator" style="background-color: lavender;">
@@ -29,29 +31,60 @@
 		{% endwith -%}
 		</p>
         <hr>
-		<a href="/">Main page</a>
+		<a href="/">{{ ui_translations['main_page'][ui_lang] }}</a>
 		<table style="margin: auto; width: auto;">
 		    <tr>
 		        <td>{{ ui_translations['stats_most_transactions'][ui_lang] }}</td>
-				<td>{{transaction_counts[1]}} ({{transaction_counts[0]}} {{ ui_translations['stats_transactions'][ui_lang] }})</td>
+				<td>{{books_by_transactions[0][0]}} ({{books_by_transactions[0][1]}}{{ ui_translations['stats_transactions'][ui_lang] }})</td>
 		    </tr>
+			<tr>
+			    <td>{{ ui_translations['stats_most_checkouts'][ui_lang] }}</td>
+				<td>{{books_by_checkouts[0][0]}} ({{books_by_checkouts[0][1]}}{{ ui_translations['stats_transactions'][ui_lang] }})</td>
+			</tr>
 			<tr>
 			    <td>{{ ui_translations['stats_longest_checkout'][ui_lang] }}</td>
 				<td>{{longest_checkout[1]}} ({{longest_checkout[0]}})</td>
 			</tr>
 		</table>
 		<!-- Barchart of bookname/transaction counts -->
-		<div id="transaction_counts_bar"></div>
+		<div id="books_by_transactions_bar"></div>
 		<script type="text/javascript">
-			var graphs = [{{transaction_counts_plotJSON | safe}}];
-			console.log(graphs);
+			var graphs = [{{books_by_transactions_plotJSON | safe}}];
 			var layout = {
-				"title": {"text": "Transaction counts"},
-				"font": {"size": 18}
+				"title": {"text": "Books by transaction counts"},
+				"font": {"size": 18},
+				"xaxis": {"categoryorder":"total descending"}
 			};
 			var config = {"responsive": true};
-			Plotly.newPlot("transaction_counts_bar", graphs, layout, config);
+			Plotly.newPlot("books_by_transactions_bar", graphs, layout, config);
 		</script>
+		
+		<!-- Barchart of bookname/checkout counts -->
+		<div id="books_by_checkouts_bar"></div>
+		<script type="text/javascript">
+			var graphs = [{{books_by_checkouts_plotJSON | safe}}];
+			var layout = {
+				"title": {"text": "Books by checkout counts"},
+				"font": {"size": 18},
+				"xaxis": {"categoryorder":"total descending"}
+			};
+			var config = {"responsive": true};
+			Plotly.newPlot("books_by_checkouts_bar", graphs, layout, config);
+		</script>
+		
+		<!-- Barchart of bookname/checkout counts -->
+		<div id="users_by_transactions_bar"></div>
+		<script type="text/javascript">
+			var graphs = [{{users_by_transactions_plotJSON | safe}}];
+			var layout = {
+				"title": {"text": "Users by transaction counts"},
+				"font": {"size": 18},
+				"xaxis": {"categoryorder":"total descending"}
+			};
+			var config = {"responsive": true};
+			Plotly.newPlot("users_by_transactions_bar", graphs, layout, config);
+		</script>
+
 		<!--
 		<div id="checkout_intervals_bar"></div>
 		<div id="genre_transactions_bar"></div>
