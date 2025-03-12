@@ -6,6 +6,12 @@
 		<title>{{ ui_translations['title'][ui_lang] }}</title>
 		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }} rel="stylesheet">
 		<link rel="stylesheet" href= {{ url_for('static', filename='bootstrap.min.css') }} rel="stylesheet">
+		<style>
+			.isbn { font-size: 2vw; }
+			td { border: 1px solid; border-color: blue; padding: 5px; }
+			.table_header { cursor: pointer; }
+			.upper_section {background-color: rgba(121,252,156,0.5);}
+		</style>
 		<script src= {{ url_for('static', filename='mark.es6.js') }}></script>
 		<script type="text/javascript">
 			function show_book_addition() {
