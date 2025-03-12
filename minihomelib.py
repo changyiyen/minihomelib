@@ -43,6 +43,7 @@ cur = con.cursor()
 item_data = cur.execute("SELECT ISBN, book_name, authors, language, publisher, publication_year, genres, acquisition_date, acquisition_location, home_shelf FROM item_info;").fetchall()
 transaction_data = cur.execute("SELECT ISBN, transaction_type, transaction_date, user_name FROM transactions;").fetchall()
 book_status = cur.execute("SELECT ISBN, status, last_transaction FROM book_status").fetchall()
+notes = cur.execute("SELECT ISBN, notes FROM notes").fetchall()
 con.close()
 for row in item_data:
     lib[row[0]] = {
@@ -57,18 +58,22 @@ for row in item_data:
         "HOME_SHELF": row[9],
     }
 for row in transaction_data:
-    lib[row[0]]["TRANSACTIONS"] = list()
-for row in transaction_data:
-    lib[row[0]]["TRANSACTIONS"].append(
-        {
-        "TRANSACTION_TYPE": row[1],
-        "TRANSACTION_DATE": row[2],
-        "USERNAME": row[3]
-        }
-    )
+    if row[0] in lib.keys():
+        lib[row[0]]["TRANSACTIONS"] = list()
+        lib[row[0]]["TRANSACTIONS"].append(
+            {
+            "TRANSACTION_TYPE": row[1],
+            "TRANSACTION_DATE": row[2],
+            "USERNAME": row[3]
+            }
+        )
 for row in book_status:
-    lib[row[0]]["BOOK_STATUS"] = row[1]
-    lib[row[0]]["LAST_TRANSACTION"] = row[2]
+    if row[0] in lib.keys():
+        lib[row[0]]["BOOK_STATUS"] = row[1]
+        lib[row[0]]["LAST_TRANSACTION"] = row[2]
+for row in notes:
+    if row[0] in lib.keys():
+        lib[row[0]]["NOTES"] = row[1]
 
 ### Set up Flask app ###
 app = flask.Flask(__name__)
@@ -236,6 +241,7 @@ def add():
     )
     lib[isbn]['BOOK_STATUS'] = flask.request.form.get('checkout_status')
     lib[isbn]['LAST_TRANSACTION'] = t
+    lib[isbn]['NOTES'] = ""
 
     # Automatically fetch metadata? (Fetched metadata overrides manually entered data)
     if conf['isbnlib_fetch_meta'] and ISBNlib_imported:
@@ -302,14 +308,175 @@ def add():
     flask.flash("Book '{}' added!".format(bookname))
     return flask.redirect('/')
 
+@app.route('/saveedit', methods=['POST'])
+@flask_login.login_required
+def saveedit():
+    '''
+    Save edits to book info
+    '''
+    global lib
+    
+    # Read ISBN from web form
+    isbn = flask.request.form.get('isbn')
+
+    # Modify library entry in internal representation
+    lib[isbn]['BOOKNAME'] = flask.request.form.get('bookname')
+    lib[isbn]['AUTHORS'] = flask.request.form.get('authors')
+    lib[isbn]['LANGUAGE'] = flask.request.form.get('language')
+    lib[isbn]['PUBLISHER'] = flask.request.form.get('publisher')
+    lib[isbn]['PUBLICATION_YEAR'] = flask.request.form.get('year')
+    lib[isbn]['GENRES'] = flask.request.form.get('genre')
+    lib[isbn]['ACQUISITION_DATE'] = flask.request.form.get('acquisition_date')
+    lib[isbn]['ACQUISITION_LOCATION'] = flask.request.form.get('source')
+    lib[isbn]['HOME_SHELF'] = flask.request.form.get('location')
+    lib[isbn]['BOOK_STATUS'] = flask.request.form.get('status')
+    lib[isbn]['LAST_TRANSACTION'] = flask.request.form.get('last_transaction')
+    lib[isbn]['NOTES'] = flask.request.form.get('notes')
+    
+    # Write to database
+    con = sqlite3.connect(conf["library_db"])
+    cur = con.cursor()
+    cur.execute("""
+        UPDATE item_info
+        SET book_name=(?),
+            authors=(?),
+            language=(?),
+            publisher=(?),
+            publication_year=(?),
+            genres=(?),
+            acquisition_date=(?),
+            acquisition_location=(?),
+            home_shelf=(?)
+        WHERE ISBN=(?)
+        """,
+        (
+        lib[isbn]['BOOKNAME'],
+        lib[isbn]['AUTHORS'],
+        lib[isbn]['LANGUAGE'],
+        lib[isbn]['PUBLISHER'],
+        lib[isbn]['PUBLICATION_YEAR'],
+        lib[isbn]['GENRES'],
+        lib[isbn]['ACQUISITION_DATE'],
+        lib[isbn]['ACQUISITION_LOCATION'],
+        lib[isbn]['HOME_SHELF'],
+        isbn
+        )
+    )
+    cur.execute("INSERT OR REPLACE INTO notes (ISBN, notes) VALUES (?,?)",
+        (
+        flask.request.form.get('isbn'),
+        lib[isbn]['NOTES']
+        )
+    )
+    con.commit()
+    con.close()
+
+    flask.flash("Book '{}' modified!".format(lib[isbn]['BOOKNAME']))
+    return flask.redirect('/')
+
 @app.route('/book/<isbn>')
 @flask_login.login_required
-def bookinfo():
-    # TODO: finish templates for book info (maybe add mechanism for comments)
+def bookinfo(isbn):
     global lib
     '''
     Render info page for each book.
     '''
+    bookname = lib[isbn]["BOOKNAME"]
+    authors = lib[isbn]["AUTHORS"]
+    language = lib[isbn]["LANGUAGE"]
+    publisher = lib[isbn]["PUBLISHER"]
+    year = lib[isbn]["PUBLICATION_YEAR"]
+    genre = lib[isbn]["GENRES"]
+    acquisition_date = lib[isbn]["ACQUISITION_DATE"]
+    source = lib[isbn]["ACQUISITION_LOCATION"]
+    location = lib[isbn]["HOME_SHELF"]
+    status = lib[isbn]["BOOK_STATUS"]
+    last_transaction = lib[isbn]["LAST_TRANSACTION"]
+    notes = lib[isbn].get("NOTES", "(empty)")
+    
+    return flask.render_template('bookinfo.htm',
+        ui_translations=ui_translations,
+        ui_lang=flask.request.accept_languages.best_match(supported_languages),
+        pagedate=datetime.datetime.today().isoformat('T', 'seconds'),
+        ISBN=isbn,
+        bookname=bookname,
+        authors=authors,
+        language=language,
+        publisher=publisher,
+        year=year,
+        genre=genre,
+        acquisition_date=acquisition_date,
+        source=source,
+        location=location,
+        status=status,
+        last_transaction=last_transaction,
+        notes=notes)
+
+@app.route('/book/<isbn>/edit')
+@flask_login.login_required
+def editbookinfo(isbn):
+    global lib
+    '''
+    Render edit page for each book.
+    '''
+    bookname = lib[isbn]["BOOKNAME"]
+    authors = lib[isbn]["AUTHORS"]
+    language = lib[isbn]["LANGUAGE"]
+    publisher = lib[isbn]["PUBLISHER"]
+    year = lib[isbn]["PUBLICATION_YEAR"]
+    genre = lib[isbn]["GENRES"]
+    acquisition_date = lib[isbn]["ACQUISITION_DATE"]
+    source = lib[isbn]["ACQUISITION_LOCATION"]
+    location = lib[isbn]["HOME_SHELF"]
+    status = lib[isbn]["BOOK_STATUS"]
+    last_transaction = lib[isbn]["LAST_TRANSACTION"]
+    notes = lib[isbn].get("NOTES", "(empty)")
+    
+    return flask.render_template('editbookinfo.htm',
+        ui_translations=ui_translations,
+        ui_lang=flask.request.accept_languages.best_match(supported_languages),
+        pagedate=datetime.datetime.today().isoformat('T', 'seconds'),
+        ISBN=isbn,
+        bookname=bookname,
+        authors=authors,
+        language=language,
+        publisher=publisher,
+        year=year,
+        genre=genre,
+        acquisition_date=acquisition_date,
+        source=source,
+        location=location,
+        status=status,
+        last_transaction=last_transaction,
+        notes=notes)
+
+@app.route('/deletebook', methods=['POST'])
+@flask_login.login_required
+def deletebook():
+    ## TODO: complete this function (add deletion to trgansaction records)
+    '''
+    Delete book (but keep status, transaction records, and notes)
+    '''
+    global lib
+    
+    # Get ISBN
+    isbn = str(flask.request.json.get('isbn'))
+    
+    # Get book name from internal representation
+    bookname = lib[isbn]['BOOKNAME']
+
+    # Delete ISBN entry from internal representation
+    del lib[isbn]
+
+    # Write to database
+    con = sqlite3.connect(conf["library_db"])
+    cur = con.cursor()
+    # (Tip: The ISBN should be passed as a 1-element tuple, with a trailing comma.)
+    cur.execute("DELETE FROM item_info WHERE ISBN=(?)", (isbn,))
+    con.commit()
+    con.close()
+
+    flask.flash("Book '{}' deleted!".format(bookname))
     return flask.redirect('/')
 
 @app.route('/stats', methods=['GET'])

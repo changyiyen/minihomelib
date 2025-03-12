@@ -19,8 +19,10 @@ h2 { text-align: center; }
 .table_header { cursor: pointer; }
 
 /* !!!!!     Try to make the table of books look nice (testing)     !!!!! */
-table {
+#book_table {
     width: 100%;
+    border-collapse: collapse; /* Removes gaps between cells */
+    table-layout: auto; /* Allow variable-width columns */
 }
 
 /*  Turns out the table overflow issues were due to the filter text boxes being too wide.
@@ -30,15 +32,19 @@ table {
  */
 .colfilter { width: 90% }
 
-td {
-    border: 1px solid;
-    border-color: blue;
-    padding: 5px;
-}
-
 img {
     max-width: 100%;
     height: auto;
     display: block;
     margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+    table {
+        font-size: 14px;
+    }
+    th, td {
+        padding: 3px 5px;
+        word-wrap: break-word;
+    }
 }

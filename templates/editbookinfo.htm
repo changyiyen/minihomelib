@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Editing info for {{bookname}}</title>
+		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }} rel="stylesheet">
+		<link rel="stylesheet" href= {{ url_for('static', filename='bootstrap.min.css') }} rel="stylesheet">
+		<style>
+			table {
+				margin-left: auto;
+				margin-right: auto;
+			}
+		</style>
+		<script type="text/javascript">
+			function deleteBook(isbn) {
+				fetch("/deletebook", {
+					method: "POST",
+					body: JSON.stringify({isbn: {{ ISBN }}}),
+					headers: {"Content-Type": "application/json; charset=UTF-8"}
+				});
+			}
+		</script>
+	</head>
+	<body>
+		<h1 id="page_title">Editing info for {{bookname}}</h1>
+		<p id="page_gen_time">{{ ui_translations['page_generation_time_msg'][ui_lang] }} UTC {{ pagedate }}</p>
+		<hr>
+		{% with messages = get_flashed_messages() -%}
+			{% if messages -%}
+			<ul id="indicator">
+			{% for message in messages -%}
+				{% if message in ui_translations -%}
+				<li>{{ ui_translations[message][ui_lang] }}</li>
+				{% else %}
+				<li>{{ message }}</li>
+				{% endif -%}
+			{% endfor -%}
+			</ul>
+			{% endif -%}
+		{% endwith -%}
+		<hr>
+		<!-- Calls the /edit route on the server -->
+		<table>
+			<form method="POST" action="/saveedit" id="edit">
+			<tr>
+				<td rowspan="14" style="width: 40%;">
+					<img src= {{ url_for('static', filename='covers/{}-M.jpg'.format(ISBN)) }}>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="isbn">ISBN</label>
+				</td>
+				<td>
+					<input type="hidden" id="isbn" name="isbn" value="{{ ISBN }}" /> {{ ISBN }}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="bookname">{{ ui_translations['book_table_name'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="bookname" name="bookname" value="{{ bookname }}" required />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="authors">{{ ui_translations['book_table_author'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="authors" name="authors" value="{{ authors }}" required />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="language">{{ ui_translations['book_table_language'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="language" name="language" value="{{ language }}" required />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="publisher">{{ ui_translations['book_table_publisher'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="publisher" name="publisher" value="{{ publisher }}" /></td>
+			</tr>
+			<tr>
+				<td>
+					<label for="year">{{ ui_translations['book_table_pubyear'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="year" name="year" value="{{ year }}" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="genre">{{ ui_translations['book_table_genre'][ui_lang] }}</label>
+					</td>
+				<td>
+					<input type="text" id="genre" name="genre" value="{{ genre }}" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="acquisition_date">{{ ui_translations['book_table_acquisitiondate'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="acquisition_date" name="acquisition_date" value="{{ acquisition_date }}" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="source">{{ ui_translations['book_table_source'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="source" name="source" value="{{ source }}" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="location">{{ ui_translations['book_table_location'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="location" name="location" value="{{ location }}" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="status">{{ ui_translations['book_table_lendstatus'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="status" name="status" value="{{ status }}" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="last_transaction">{{ ui_translations['book_table_lasttransaction'][ui_lang] }}</label>
+				</td>
+				<td>
+					<input type="text" id="last_transaction" name="last_transaction" value="{{ last_transaction }}" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="notes">{{ ui_translations['book_notes'][ui_lang] }}</label>
+				</td>
+				<td>
+					<textarea id="notes" name="notes" rows="4" cols="30" form="edit" />{{ notes }}</textarea>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<label for="cover">Upload a cover picture: </label>
+					<input type="file" id="cover" accept="image/png, image/jpeg" />
+				</td>
+				<td>
+					<button type="submit" class="btn btn-primary" form="edit">Save changes</button>
+					<button type="button" class="btn btn-danger" form="edit" onClick="deleteBook('{{ISBN}}');">Delete book</button>
+				</td>
+			</tr>
+			</form>
+		</table>
+		<script src={{ url_for('static', filename='bootstrap.bundle.min.js') }}></script>
+	</body>
+</html>

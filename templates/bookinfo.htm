@@ -2,21 +2,19 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<title>Information for {{bookname}}</title>
-		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }}>
+		<title>{{bookname}}</title>
+		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }} rel="stylesheet">
+		<link rel="stylesheet" href= {{ url_for('static', filename='bootstrap.min.css') }} rel="stylesheet">
 		<style>
 			table {
-				margin: 0;
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				-ms-transform: translate(-50%, -50%);
-				transform: translate(-50%, -50%);
+				margin-left: auto;
+				margin-right: auto;
 			}
 		</style>
 	</head>
 	<body>
-		<h1 id="page_title">Information for {{bookname}}</h1>
+		<h1 id="page_title">{{bookname}}</h1>
+		<p id="page_gen_time">{{ ui_translations['page_generation_time_msg'][ui_lang] }} UTC {{ pagedate }}</p>
 		<hr>
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
@@ -34,10 +32,75 @@
 		<hr>
 		<!-- Dynamically generated book info goes here -->
 		<table>
-			<thead>
-			</thead>
-			<tbody>
-			</tbody>
+			<tr>
+				<td rowspan="14" style="width: 40%;">
+					<img src= {{ url_for('static', filename='covers/{}-M.jpg'.format(ISBN)) }}>
+				</td>
+			</tr>
+			<tr>
+				<td>ISBN</td>
+				<td>{{ ISBN }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_name'][ui_lang] }}</td>
+				<td>{{ bookname }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_author'][ui_lang] }}</td>
+				<td>{{ authors }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_language'][ui_lang] }}</td>
+				<td>{{ language }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_publisher'][ui_lang] }}</td>
+				<td>{{ publisher }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_pubyear'][ui_lang] }}</td>
+				<td>{{ year }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_genre'][ui_lang] }}</td>
+				<td>{{ genre }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_acquisitiondate'][ui_lang] }}</td>
+				<td>{{ acquisition_date }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_source'][ui_lang] }}</td>
+				<td>{{ source }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_location'][ui_lang] }}</td>
+				<td>{{ location }}</td>
+			</tr>
+			
+			
+			<tr>
+				<td>{{ ui_translations['book_table_lendstatus'][ui_lang] }}</td>
+				{% if status == 'checked out' -%}
+				<td style="color:red; font-weight: bold;">{{ ui_translations['book_table_checkedout'][ui_lang] }}</td>
+				{% elif status == 'checked in' -%}
+				<td style="color:green; font-weight: bold;">{{ ui_translations['book_table_checkedin'][ui_lang] }}</td>
+				{% else -%}
+				<td>{{ status }}</td>
+				{% endif -%}
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_table_lasttransaction'][ui_lang] }}</td>
+				<td>{{ last_transaction }}</td>
+			</tr>
+			<tr>
+				<td>{{ ui_translations['book_notes'][ui_lang] }}</td>
+				<td>{{ notes }}</td>
+			</tr>
+			<tr>
+				<td style="text-align: center;"><a href="/book/{{ISBN}}/edit">Edit</a></td>
+			</tr>
 		</table>
+
 	</body>
 </html>

@@ -2,9 +2,10 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{{ ui_translations['title'][ui_lang] }}</title>
-		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }}>
+		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }} rel="stylesheet">
+		<link rel="stylesheet" href= {{ url_for('static', filename='bootstrap.min.css') }} rel="stylesheet">
 		<script src= {{ url_for('static', filename='mark.es6.js') }}></script>
 		<script type="text/javascript">
 			function show_book_addition() {
@@ -87,7 +88,7 @@
 				<a href="/exporttransactions">{{ ui_translations['export_transactions_label'][ui_lang] }}</a>
 				<a href="/exportstatus">{{ ui_translations['export_status_label'][ui_lang] }}</a>
 			</div>
-			<form method="POST" action="/add" id="book_addition" hidden>
+			<form method="POST" action="/add" id="book_addition" onkeydown="if (event.keyCode === 13) {return false;}" hidden>
 				<table id="add_book_table">
 					<tr>
 						<td><label>ISBN: </label></td>
@@ -167,7 +168,7 @@
 
 		<h2>{{ ui_translations['library_header'][ui_lang] }}</h2>
 		<div style="overflow-x: auto;">
-		<table>
+		<table class="book_table">
 			<!-- Generate table of books -->
 			<thead>
 			<tr class="table_header">
@@ -196,7 +197,7 @@
 			{% if lib -%}
 			{% for ISBN in lib -%}
 			<tr class="book_row">
-				<td>{{ ISBN }}</td>
+				<td><a href="/book/{{ISBN}}">{{ ISBN }}</a></td>
 				<td>{{ lib[ISBN]['BOOKNAME'] }}</td>
 				<td>{{ lib[ISBN]['AUTHORS'] }}</td>
 				<td>{{ lib[ISBN]['LANGUAGE'] }}</td>

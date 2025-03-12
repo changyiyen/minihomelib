@@ -2,6 +2,10 @@
 
 ## Main user interface
 
+[main]
+  "en" = "Main page"
+  "zh-TW" = "主畫面"
+
 [noscript]
   "en" = "This interface requires JavaScript. Please enable it in your browser."
   "zh-TW" = "本介面需使用JavaScript；請開啟。"
@@ -182,6 +186,10 @@
   "en" = "Book cover"
   "zh-TW" = "封面"
 
+[book_notes]
+  "en" = "Notes"
+  "zh-TW" = "筆記"
+
 [past_due_openquote]
   "en" = "Book '"
   "zh-TW" = "《"
@@ -259,6 +267,10 @@
 [stats_longest_checkout]
   "en" = "Longest checkout"
   "zh-TW" = "出借最久"
+
+[stats_graph_transaction_counts]
+  "en" = "Transaction counts"
+  "zh-TW" = "借還次數"
 
 ## Message translations
 

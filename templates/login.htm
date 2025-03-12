@@ -4,14 +4,11 @@
 		<meta charset="utf-8" />
 		<title>{{ ui_translations['login_title'][ui_lang] }}</title>
 		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }}>
+		<link rel="stylesheet" href= {{ url_for('static', filename='bootstrap.min.css') }} rel="stylesheet">
 		<style>
 			table {
-				margin: 0;
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				-ms-transform: translate(-50%, -50%);
-				transform: translate(-50%, -50%);
+				margin-left: auto;
+				margin-right: auto;
 			}
 		</style>
 	</head>
@@ -34,17 +31,17 @@
 		{% endwith -%}
 		<hr>
 		<form method="POST" action="/login">
-			<table>
+			<table style="border-spacing: 0 20px; line-height: 50px;">
 				<tr>
-					<td><label for="username">{{ ui_translations['login_username'][ui_lang] }}:</label></td>
+					<td><label for="username">{{ ui_translations['login_username'][ui_lang] }}: </label></td>
 					<td><input type="text" id="username" name="username" placeholder="User name"></td>
 				</tr>
 				<tr>
-					<td><label for="password">{{ ui_translations['login_password'][ui_lang] }}:</label></td>
+					<td><label for="password">{{ ui_translations['login_password'][ui_lang] }}: </label></td>
 					<td><input type="password" id="password" name="password"></td>
 				</tr>
 				<tr>
-					<td><button type="submit">{{ ui_translations['login_submit'][ui_lang] }}</button></td>
+					<td colspan="2" style="text-align: center;"><button type="submit" class="btn btn-primary">{{ ui_translations['login_submit'][ui_lang] }}</button></td>
 				</tr>
 			</table>
 		</form>

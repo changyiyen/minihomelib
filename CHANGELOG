@@ -7,14 +7,22 @@
 - Add user sessions using log-in mechanism (Flask-Login, passlib)
 - Add user interface translations
 - Add basic stats
+- Add export to CSV
+- Add per-book info pages
+- Allow editing and deleting book info
 
 ### Fixed
+
+- Fixed page autoreloading when adding a book using a barcode scanner
+- Various CSS fixes
 
 ### Changed
 
 - Enhanced UI: search (filter) and sort by column, book covers, new book arrivals
+- Refreshed UI look using bundled Bootstrap
 - Switched to flask.flash for message passing
 - Switch to SQLite3 for book database
+  - changed database schema: added table for book-related notes
 - Switch to TOML for configuration
 
 ### Removed

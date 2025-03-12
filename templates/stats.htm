@@ -29,7 +29,7 @@
 		{% endwith -%}
 		</p>
         <hr>
-		<a href="/">Main page</a>
+		<a href="/">{{ ui_translations['main'][ui_lang] }}</a>
 		<table style="margin: auto; width: auto;">
 		    <tr>
 		        <td>{{ ui_translations['stats_most_transactions'][ui_lang] }}</td>
@@ -46,7 +46,7 @@
 			var graphs = [{{transaction_counts_plotJSON | safe}}];
 			console.log(graphs);
 			var layout = {
-				"title": {"text": "Transaction counts"},
+				"title": {"text": " {{ ui_translations['stats_graph_transaction_counts'][ui_lang] }} "},
 				"font": {"size": 18}
 			};
 			var config = {"responsive": true};
