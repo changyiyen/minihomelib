@@ -7,13 +7,16 @@
 		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }} rel="stylesheet">
 		<link rel="stylesheet" href= {{ url_for('static', filename='bootstrap.min.css') }} rel="stylesheet">
 		<style>
+			body {
+				margin: 1%;
+			}
 			.isbn { font-size: 2vw; }
-			td { border: 1px solid; border-color: blue; padding: 5px; }
 			.table_header { cursor: pointer; }
 			.upper_section {background-color: rgba(121,252,156,0.5);}
 		</style>
 		<script src= {{ url_for('static', filename='mark.es6.js') }}></script>
 		<script type="text/javascript">
+			var ascend = 0;
 			function show_book_addition() {
 				document.getElementById("book_addition").removeAttribute("hidden");
 				document.getElementById("isbn").setAttribute("hidden", "");
@@ -44,7 +47,14 @@
 				for (i=0; i < book_table.children.length; i++) {
 					t.push(book_table.children[i]);
 				}
-				t = t.sort(function(a, b){return a.cells[n].innerText > b.cells[n].innerText;});
+				if (ascend == 0) {
+					t = t.sort(function(a, b){return a.cells[n].innerText > b.cells[n].innerText;});
+					ascend = 1;
+				} else {
+					t = t.sort(function(a, b){return a.cells[n].innerText < b.cells[n].innerText;});
+					ascend = 0;
+				}
+				console.log(ascend);
 				// Write contents of t to original table;
 				// works on Firefox but not on Edge for some reason
 				for (i=0; i < book_table.children.length; i++) {
