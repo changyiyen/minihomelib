@@ -54,10 +54,9 @@
 					t = t.sort(function(a, b){return a.cells[n].innerText < b.cells[n].innerText;});
 					ascend = 0;
 				}
-				console.log(ascend);
-				// Write contents of t to original table;
-				// works on Firefox but not on Edge for some reason
-				for (i=0; i < book_table.children.length; i++) {
+				var l = book_table.children.length;
+				Array.from(book_table.children).forEach(c => c.remove());
+				for (i=0; i < l; i++) {
 					book_table.appendChild(t[i]);
 				}
 			}
