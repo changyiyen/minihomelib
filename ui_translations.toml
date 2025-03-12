@@ -256,9 +256,17 @@
   "en" = "Library Management System - stats"
   "zh-TW" = "圖書管理系統 - 統計"
 
+[main_page]
+  "en" = "Main page"
+  "zh-TW" = "主頁面"
+
 [stats_most_transactions]
   "en" = "Most checkout/checkins"
   "zh-TW" = "出借/還回最多次"
+
+[stats_most_checkouts]
+  "en" = "Most checkouts"
+  "zh-TW" = "出借最多次"
 
 [stats_transactions]
   "en" = "transactions"
@@ -304,4 +312,16 @@
 
 [Iloggedout]
   "en" = "Logged out!"
-  "zh-TW" = "已登出"
+  "zh-TW" = "已登出！"
+
+[Icheckin]
+  "en" = "Book '{}' checked in!"
+  "zh-TW" = "書本《{}》已置回！"
+
+[Icheckout]
+  "en" = "Book '{}' checked out!"
+  "zh-TW" = "書本《{}》借出！"
+
+[Iaddbook]
+  "en" = "Book '{}' added!"
+  "zh-TW" = "新增書本《{}》！"

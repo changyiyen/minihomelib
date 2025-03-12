@@ -43,6 +43,7 @@ $ python3 minihomelib.py
 minihomelib is placed under the coffeeware license, itself a lightly modified beerware license.
 
 ## Current feature requests
+- Add script to check integrity of library database file
 - Add more stats (per user, etc)
 - Interface aesthetics:
 	- highlight terms matching search
