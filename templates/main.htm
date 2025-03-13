@@ -16,7 +16,7 @@
 		</style>
 		<script src= {{ url_for('static', filename='mark.es6.js') }}></script>
 		<script type="text/javascript">
-			var ascend = 0;
+			var ascend = true;
 			function show_book_addition() {
 				document.getElementById("book_addition").removeAttribute("hidden");
 				document.getElementById("isbn").setAttribute("hidden", "");
@@ -32,33 +32,39 @@
 				document.getElementById("isbn").focus();
 			}
 			//function transact() {
-			//    let data = new FormData();
-			//    p = document.getElementById("indicator");
-			//    data.append("isbn", document.getElementById("isbn").value);
-			//    fetch( "/", {
-			//        "method": "POST",
-			//        "body": data,
-			//    }).then(response => response.json()).then(text => p.innerText=text);
+			//	let data = new FormData();
+			//	p = document.getElementById("indicator");
+			//	data.append("isbn", document.getElementById("isbn").value);
+			//	fetch( "/", {
+			//		"method": "POST",
+			//		"body": data,
+			//	}).then(response => response.json()).then(text => p.innerText=text);
 			//}
 			function colsort(n) {
 				// Load table into array
 				var book_table = document.getElementById("book_table");
-				var t = Array();
-				for (i=0; i < book_table.children.length; i++) {
-					t.push(book_table.children[i]);
-				}
-				if (ascend == 0) {
-					t = t.sort(function(a, b){return a.cells[n].innerText > b.cells[n].innerText;});
-					ascend = 1;
-				} else {
-					t = t.sort(function(a, b){return a.cells[n].innerText < b.cells[n].innerText;});
-					ascend = 0;
-				}
+				var t = Array.from(book_table.rows);
 				var l = book_table.children.length;
+				
+				t.sort((rowA, rowB) => {
+					let cellA = rowA.cells[n].textContent.trim();
+					let cellB = rowB.cells[n].textContent.trim();
+
+					// Convert to numbers if both values are numeric
+					let numA = parseFloat(cellA);
+					let numB = parseFloat(cellB);
+					if (!isNaN(numA) && !isNaN(numB)) {
+						return ascend ? numA - numB : numB - numA;
+					}
+
+					// Sort as strings otherwise
+					return ascend ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+				});
+				
 				Array.from(book_table.children).forEach(c => c.remove());
-				for (i=0; i < l; i++) {
-					book_table.appendChild(t[i]);
-				}
+				
+				t.forEach(row => book_table.appendChild(row));
+				ascend = !ascend;
 			}
 			function librarysearch(colnum) {
 				var filter, table, rows, cell, i, textvalue;
@@ -84,7 +90,7 @@
 		<noscript>
 			{{ ui_translations['noscript'][ui_lang] }}
 		</noscript>
-		<div id="upper_section">    
+		<div id="upper_section">	
 			<h1 id="page_title">{{ ui_translations['title'][ui_lang] }}</h1>
 			<p id="page_gen_time">{{ ui_translations['page_generation_time_msg'][ui_lang] }} UTC {{ pagedate }}</p>
 			<p id="current_user">{{ ui_translations['current_user'][ui_lang] }}: {{ current_login }} (<a href="logout">{{ ui_translations['log_out'][ui_lang] }}</a>)</p>
@@ -226,7 +232,7 @@
 				<td style="color:red; font-weight: bold;">{{ ui_translations['book_table_checkedout'][ui_lang] }}</td>
 				{% elif lib[ISBN]['BOOK_STATUS'] == 'checked in' -%}
 				<td style="color:green; font-weight: bold;">{{ ui_translations['book_table_checkedin'][ui_lang] }}</td>
-			    {% else -%}
+				{% else -%}
 				<td> {{ lib[ISBN]['BOOK_STATUS'] }} </td>
 				{% endif -%}
 				<td>{{ lib[ISBN]['LAST_TRANSACTION'] }} ({{ lib[ISBN]['TRANSACTIONS'][-1]['USERNAME'] }})</td>

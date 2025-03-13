@@ -633,5 +633,10 @@ def logout():
     flask.flash("Iloggedout")
     return flask.redirect('/')
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return flask.render_template('404.htm',
+        ui_translations=ui_translations), 404
+
 if __name__ == '__main__':
     app.run(debug=True)
