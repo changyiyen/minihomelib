@@ -8,6 +8,8 @@
 
 h2 { text-align: center; }
 
+div { margin: 1%; }
+
 /* ISBN entry field text size */
 #isbn { font-size: 2vw; }
 

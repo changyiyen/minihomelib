@@ -14,9 +14,9 @@ openlibrary_fetch_cover = true
 openlibrary_cover_size = "M"
 
 # Alerts and notifications
-## Past due alert duration (in days)
+## Past due alert duration (in days, exclusive)
 past_due = 30
-## New book arrivals (in days)
+## New book arrival threshold (in days since acquisition, inclusive)
 new_arrival = 30
 
 # Shelf management

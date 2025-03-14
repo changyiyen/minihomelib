@@ -1,19 +1,21 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title>{{ ui_translations['stats_title'][ui_lang] }}</title>
-        <style>
-            td { border: 1px solid; border-color: blue; padding: 5px;}
-        </style>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{{ ui_translations['stats_title'][ui_lang] }}</title>
+		<link rel="stylesheet" href= {{ url_for('static', filename='styles.css') }} rel="stylesheet">
+		<link rel="stylesheet" href= {{ url_for('static', filename='bootstrap.css') }} rel="stylesheet">
 		<script src= {{ url_for('static', filename='plotly-2.26.0.min.js') }}>
 		</script>
-    </head>
-    <body>
-        <h1 style="text-align: center;">{{ ui_translations['stats_title'][ui_lang] }}</h1>
-        <p style="text-align: right;">{{ ui_translations['page_generation_time_msg'][ui_lang] }}{{ pagedate }}</p>
-        <hr>
-        <p id="indicator" style="background-color: lavender;">
+	</head>
+	<body>
+		<div id="upper_section">
+			<h1 style="text-align: center;">{{ ui_translations['stats_title'][ui_lang] }}</h1>
+			<p style="text-align: right;">{{ ui_translations['page_generation_time_msg'][ui_lang] }} {{ pagedate }}</p>
+		</div>
+		<hr>
+		<p id="indicator" style="background-color: lavender;">
 		{% with messages = get_flashed_messages() -%}
 			{% if messages -%}
 			<ul id="indicator" style="background-color: lavender;">
@@ -28,18 +30,35 @@
 			{% endif -%}
 		{% endwith -%}
 		</p>
-        <hr>
-		<a href="/">{{ ui_translations['main'][ui_lang] }}</a>
-		<table style="margin: auto; width: auto;">
-		    <tr>
-		        <td>{{ ui_translations['stats_most_transactions'][ui_lang] }}</td>
-				<td>{{transaction_counts[1]}} ({{transaction_counts[0]}} {{ ui_translations['stats_transactions'][ui_lang] }})</td>
-		    </tr>
-			<tr>
-			    <td>{{ ui_translations['stats_longest_checkout'][ui_lang] }}</td>
-				<td>{{longest_checkout[1]}} ({{longest_checkout[0]}})</td>
-			</tr>
+		<hr>
+
+		<div id="page_links">
+			<a href="/">{{ ui_translations['main'][ui_lang] }}</a>
+		</div>
+
+		<div id="stats_table">
+		<table class="table table-striped">
+			<caption>Stats table</caption>
+			<thead>
+				<tr>
+				<th> Characteristic </th>
+				<th> Book name </th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>{{ ui_translations['stats_most_transactions'][ui_lang] }}</td>
+					<td>{{transaction_counts[1][0]}} ({{transaction_counts[0]}} {{ ui_translations['stats_transactions'][ui_lang] }})</td>
+				</tr>
+				<tr>
+					<td>{{ ui_translations['stats_longest_checkout'][ui_lang] }}</td>
+					<td>{{longest_checkout[1]}} ({{longest_checkout[0]}})</td>
+				</tr>
+			</tbody>
 		</table>
+		</div>
+
+		<div id="charts">
 		<!-- Barchart of bookname/transaction counts -->
 		<div id="transaction_counts_bar"></div>
 		<script type="text/javascript">
@@ -60,5 +79,6 @@
 		<div id="acquired_genre_stackedhisto"></div>
 		<div id="cumulative_histo"></div>
 		-->
-    </body>
+		</div>
+	</body>
 </html>

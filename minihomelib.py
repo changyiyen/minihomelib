@@ -59,7 +59,8 @@ for row in item_data:
     }
 for row in transaction_data:
     if row[0] in lib.keys():
-        lib[row[0]]["TRANSACTIONS"] = list()
+        if "TRANSACTIONS" not in lib[row[0]].keys():
+            lib[row[0]]["TRANSACTIONS"] = list()
         lib[row[0]]["TRANSACTIONS"].append(
             {
             "TRANSACTION_TYPE": row[1],
@@ -67,6 +68,7 @@ for row in transaction_data:
             "USERNAME": row[3]
             }
         )
+
 for row in book_status:
     if row[0] in lib.keys():
         lib[row[0]]["BOOK_STATUS"] = row[1]
@@ -507,6 +509,7 @@ def stats():
             [transaction['TRANSACTION_DATE'] for transaction in lib[isbn]['TRANSACTIONS'] if transaction['TRANSACTION_TYPE'] == 'check in'],
             [transaction['TRANSACTION_DATE'] for transaction in lib[isbn]['TRANSACTIONS'] if transaction['TRANSACTION_TYPE'] == 'check out']
         ))
+        
         for session in sessions:
             delta = datetime.datetime.strptime(session[1], '%Y-%m-%dT%H:%M:%S') - datetime.datetime.strptime(session[0], '%Y-%m-%dT%H:%M:%S')
             if delta > longest_checkout[0]:
